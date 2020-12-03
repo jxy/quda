@@ -1,0 +1,62 @@
+include/tunable_nd.h:16:  class TunableKernel1D_base : public Tunable
+include/tunable_nd.h:90:    TunableKernel1D_base(const LatticeField &field, QudaFieldLocation location = QUDA_INVALID_FIELD_LOCATION) :
+include/tunable_nd.h:107:  class TunableKernel1D : public TunableKernel1D_base<false> {
+include/tunable_nd.h:118:    TunableKernel1D(const LatticeField &field, QudaFieldLocation location = QUDA_INVALID_FIELD_LOCATION) :
+include/tunable_nd.h:119:      TunableKernel1D_base<false>(field, location) {}
+
+
+
+lib/targets/omptarget/malloc.cpp
+  void *device_malloc_(const char *func, const char *file, int line, size_t size)
+  void *device_pinned_malloc_(const char *func, const char *file, int line, size_t size)
+  void *managed_malloc_(const char *func, const char *file, int line, size_t size)
+  void *mapped_malloc_(const char *func, const char *file, int line, size_t size)
+  void *pinned_malloc_(const char *func, const char *file, int line, size_t size)
+  void *safe_malloc_(const char *func, const char *file, int line, size_t size)
+  void device_free_(const char *func, const char *file, int line, void *ptr)
+  void device_pinned_free_(const char *func, const char *file, int line, void *ptr)
+  void host_free_(const char *func, const char *file, int line, void *ptr)
+  void managed_free_(const char *func, const char *file, int line, void *ptr)
+
+include/targets/omptarget/reduction_kernel.h
+include/reduce_helper.h
+include/cub_helper.cuh
+
+include/quda_api.h
+include/random_quda.h
+include/tune_quda.h
+include/util_quda.h
+lib/interface_quda.cpp
+lib/comm_common.cpp
+
+include/trove_helper.cuh
+include/thrust_helper.cuh
+
+nonstandard:
+rsqrt
+sincos
+sincosf
+
+include/matrix_field.h
+// trove requires the warp shuffle instructions introduced with Kepler
+
+include/fast_intdiv.h
+generates duplicate symbols of those operator/ and operator%
+
+include/multi_blas_helper.cuh
+duplicate symbol 'quda::blas::Cmatrix_d' in:
+    lib/multi_blas_quda.o
+    lib/multi_reduce_quda.o
+duplicate symbol 'quda::blas::Bmatrix_d' in:
+    lib/multi_blas_quda.o
+    lib/multi_reduce_quda.o
+duplicate symbol 'quda::blas::Amatrix_d' in:
+    lib/multi_blas_quda.o
+    lib/multi_reduce_quda.o
+
+
+include/blas_magma.h
+include/quda_define.h
+
+mk clean
+NPROC=64 w_iomp mk tests/blas_test tests/plaq_test
