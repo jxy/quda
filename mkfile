@@ -4,10 +4,11 @@ HASH=omptarget,FIXME_with_a_unique_string
 
 # CXX=mpicxx
 CXX=icpx
+# OMPFLAGS=-fopenmp
+OMPFLAGS=-fiopenmp -fopenmp-targets=spir64 -D__STRICT_ANSI__
 
-# CXXFLAGS=-fopenmp -O0 -g -fpermissive -std=gnu++17
+CXXFLAGS=-O0 -g -std=gnu++17
 # CXXFLAGS=-march=native -Ofast
-CXXFLAGS=-fiopenmp -fopenmp-targets=spir64 -D__STRICT_ANSI__ -O0 -g -std=gnu++17
 CXXFLAGS=$CXXFLAGS -Iinclude/targets/omptarget -Iinclude -Itests/utils -Iinclude/externals -Ilib -Itests/host_reference -I../eigen-3.3.7 -Itests/googletest/include -Itests/googletest
 CXXFLAGS=$CXXFLAGS -DQUDA_PRECISION=14 -DQUDA_RECONSTRUCT=7 -DQUDA_MAX_MULTI_BLAS_N=4 -DQUDA_FAST_COMPILE_REDUCE -DQUDA_HASH="$HASH"
 CXXFLAGS=$CXXFLAGS -DBUILD_QDP_INTERFACE -DGPU_WILSON_DIRAC
@@ -15,8 +16,7 @@ CXXFLAGS=$CXXFLAGS -DBUILD_QDP_INTERFACE -DGPU_WILSON_DIRAC
 CXXFLAGS=$CXXFLAGS -DQUDA_BACKEND_OMPTARGET
 CXXFLAGS=$CXXFLAGS -Wno-attributes
 
-# LDFLAGS=-fopenmp
-LDFLAGS=-fiopenmp -fopenmp-targets=spir64
+LDFLAGS=
 
 TFILES=`{ls tests/*.cpp}
 
@@ -218,14 +218,14 @@ DFILES=${LIBOFILES:%.o=%.d} ${EXEOFILES:%.o=%.d} ${GTESTOFILES:%.o=%.d}
 <|cat $DFILES>[2]/dev/null||true
 
 tests/%: tests/%.o $LIBOFILES $GTESTOFILES
-	$CXX $LDFLAGS -o $target $prereq
+	$CXX $OMPFLAGS $LDFLAGS -o $target $prereq
 
 %.o: %.cc
-	$CXX $CXXFLAGS -MMD -o $target -c $stem.cc
+	$CXX $CXXFLAGS $OMPFLAGS -MMD -o $target -c $stem.cc
 %.o: %.cpp
-	$CXX $CXXFLAGS -MMD -o $target -c $stem.cpp
+	$CXX $CXXFLAGS $OMPFLAGS -MMD -o $target -c $stem.cpp
 %.o: %.cu
-	$CXX $CXXFLAGS -MMD -x c++ -o $target -c $stem.cu
+	$CXX $CXXFLAGS $OMPFLAGS -MMD -x c++ -o $target -c $stem.cu
 
 allclean:V:	clean
 	rm -f $EXE

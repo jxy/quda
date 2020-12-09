@@ -1,3 +1,103 @@
+ib/targets/generic/blas_lapack_eigen.cpp:56:88: warning: format specifies type 'unsigned long' but the argument has type 'uint64_t' (aka 'unsigned long long') [-Wformat]
+          printfQuda("BatchInvertMatrix (generic - Eigen): Nc = %d, batch = %lu\n", n, batch);
+                                                                            ~~~        ^~~~~
+                                                                            %llu
+include/util_quda.h:105:28: note: expanded from macro 'printfQuda'
+  fprintf(getOutputFile(), __VA_ARGS__);             \
+                           ^~~~~~~~~~~
+lib/targets/generic/blas_lapack_eigen.cpp:333:38: error: implicit conversion from '_Complex double' to 'double' is not permitted in C++
+          const Z alpha = blas_param.alpha;
+                          ~~~~~~~~~~~^~~~~
+lib/targets/generic/blas_lapack_eigen.cpp:334:37: error: implicit conversion from '_Complex double' to 'double' is not permitted in C++
+          const Z beta = blas_param.beta;
+                         ~~~~~~~~~~~^~~~
+lib/targets/generic/blas_lapack_eigen.cpp:340:38: error: implicit conversion from '_Complex double' to 'float' is not permitted in C++
+          const C alpha = blas_param.alpha;
+                          ~~~~~~~~~~~^~~~~
+lib/targets/generic/blas_lapack_eigen.cpp:341:37: error: implicit conversion from '_Complex double' to 'float' is not permitted in C++
+          const C beta = blas_param.beta;
+                         ~~~~~~~~~~~^~~~
+lib/targets/generic/blas_lapack_eigen.cpp:347:76: error: implicit conversion from '_Complex double' to 'double' is not permitted in C++
+          const D alpha = (D)(static_cast<std::complex<double>>(blas_param.alpha).real());
+                              ~~~~~~~~~~~                       ~~~~~~~~~~~^~~~~
+lib/targets/generic/blas_lapack_eigen.cpp:348:75: error: implicit conversion from '_Complex double' to 'double' is not permitted in C++
+          const D beta = (D)(static_cast<std::complex<double>>(blas_param.beta).real());
+                             ~~~~~~~~~~~                       ~~~~~~~~~~~^~~~
+lib/targets/generic/blas_lapack_eigen.cpp:354:75: error: implicit conversion from '_Complex double' to 'float' is not permitted in C++
+          const S alpha = (S)(static_cast<std::complex<float>>(blas_param.alpha).real());
+                              ~~~~~~~~~~~                      ~~~~~~~~~~~^~~~~
+lib/targets/generic/blas_lapack_eigen.cpp:355:74: error: implicit conversion from '_Complex double' to 'float' is not permitted in C++
+          const S beta = (S)(static_cast<std::complex<float>>(blas_param.beta).real());
+                             ~~~~~~~~~~~                      ~~~~~~~~~~~^~~~
+
+
+lib/restrictor.cu:13:51: error: constexpr variable cannot have non-literal type 'const std::array<unsigned int, 16>'
+    static constexpr std::array<unsigned int, 16> block = {32, 64, 96, 128, 160, 192, 224, 256, 288, 384, 416, 448, 512, 576, 864, 1024};
+                                                  ^
+lib/restrictor.cu:13:51: error: implicit instantiation of undefined template 'std::__1::array<unsigned int, 16>'
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/__tuple:219:64: note: template is declared here
+template <class _Tp, size_t _Size> struct _LIBCPP_TEMPLATE_VIS array;
+                                                               ^
+lib/restrictor.cu:16:54: error: constexpr variable cannot have non-literal type 'const std::array<unsigned int, 16>'
+  constexpr std::array<unsigned int, 16> Aggregates::block;
+                                                     ^
+lib/restrictor.cu:16:54: error: implicit instantiation of undefined template 'std::__1::array<unsigned int, 16>'
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/__tuple:219:64: note: template is declared here
+template <class _Tp, size_t _Size> struct _LIBCPP_TEMPLATE_VIS array;
+                                                               ^
+4 errors generated.
+
+
+lib/eig_block_trlm.cpp:464:52: error: no matching function for call to 'fabs'
+        residua[i * block_size + b + num_locked] = fabs(block_beta[n_kr * block_size - block_data_length + idx]
+                                                   ^~~~
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/math.h:417:15: note: candidate function not viable: no known conversion from 'complex<double>' to 'double' for 1st argument
+extern double fabs(double);
+              ^
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/math.h:904:46: note: candidate function not viable: no known conversion from 'complex<double>' to 'float' for 1st argument
+inline _LIBCPP_INLINE_VISIBILITY float       fabs(float __lcpp_x) _NOEXCEPT       {return ::fabsf(__lcpp_x);}
+                                             ^
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/math.h:905:46: note: candidate function not viable: no known conversion from 'complex<double>' to 'long double' for 1st argument
+inline _LIBCPP_INLINE_VISIBILITY long double fabs(long double __lcpp_x) _NOEXCEPT {return ::fabsl(__lcpp_x);}
+                                             ^
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/math.h:911:1: note: candidate template ignored: requirement 'std::is_integral<std::__1::complex<double>>::value' was not satisfied [with _A1 = std::__1::complex<double>]
+fabs(_A1 __lcpp_x) _NOEXCEPT {return ::fabs((double)__lcpp_x);}
+^
+1 error generated.
+
+
+In file included from lib/dslash_quda.cu:6:
+lib/dslash_policy.cuh:40:32: error: implicit instantiation of undefined template 'std::__1::array<int, 9>'
+      std::array<int, nStream> gatherCompleted;
+                               ^
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/__tuple:219:64: note: template is declared here
+template <class _Tp, size_t _Size> struct _LIBCPP_TEMPLATE_VIS array;
+                                                               ^
+In file included from lib/dslash_quda.cu:6:
+lib/dslash_policy.cuh:41:32: error: implicit instantiation of undefined template 'std::__1::array<int, 9>'
+      std::array<int, nStream> previousDir;
+                               ^
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/__tuple:219:64: note: template is declared here
+template <class _Tp, size_t _Size> struct _LIBCPP_TEMPLATE_VIS array;
+                                                               ^
+In file included from lib/dslash_quda.cu:6:
+lib/dslash_policy.cuh:42:32: error: implicit instantiation of undefined template 'std::__1::array<int, 9>'
+      std::array<int, nStream> commsCompleted;
+                               ^
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/__tuple:219:64: note: template is declared here
+template <class _Tp, size_t _Size> struct _LIBCPP_TEMPLATE_VIS array;
+                                                               ^
+In file included from lib/dslash_quda.cu:6:
+lib/dslash_policy.cuh:43:32: error: implicit instantiation of undefined template 'std::__1::array<int, 9>'
+      std::array<int, nStream> dslashCompleted;
+                               ^
+/opt/local/libexec/llvm-11/bin/../include/c++/v1/__tuple:219:64: note: template is declared here
+template <class _Tp, size_t _Size> struct _LIBCPP_TEMPLATE_VIS array;
+                                                               ^
+4 errors generated.
+
+
+
 include/tunable_nd.h:16:  class TunableKernel1D_base : public Tunable
 include/tunable_nd.h:90:    TunableKernel1D_base(const LatticeField &field, QudaFieldLocation location = QUDA_INVALID_FIELD_LOCATION) :
 include/tunable_nd.h:107:  class TunableKernel1D : public TunableKernel1D_base<false> {
@@ -60,3 +160,4 @@ include/quda_define.h
 
 mk clean
 NPROC=64 w_iomp mk tests/blas_test tests/plaq_test
+NPROC=4 mk CXX=clang++-mp-11 OMPFLAGS=-fopenmp LDFLAGS='-Wl,-U,_omp_target_alloc -Wl,-U,_omp_target_associate_ptr -Wl,-U,_omp_target_free -Wl,-U,_omp_target_memcpy' tests/blas_test tests/plaq_test
