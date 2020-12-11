@@ -158,6 +158,8 @@ duplicate symbol 'quda::blas::Amatrix_d' in:
 include/blas_magma.h
 include/quda_define.h
 
+git show 0eb85f477..77a9884ed include/targets/cuda/target_device.h|sed 's,/cuda/,/omptarget/,g'|patch -p1
+
 mk clean
 NPROC=64 w_iomp mk tests/blas_test tests/plaq_test
 NPROC=4 mk CXX=clang++-mp-11 OMPFLAGS=-fopenmp LDFLAGS='-Wl,-U,_omp_target_alloc -Wl,-U,_omp_target_associate_ptr -Wl,-U,_omp_target_free -Wl,-U,_omp_target_memcpy' tests/blas_test tests/plaq_test
