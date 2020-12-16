@@ -1,3 +1,9 @@
+In file included from include/tunable_nd.h:6:
+include/kernel_helper.h:10:25: error: 'alignas' attribute cannot be applied to types
+    char host[max_size] alignas(16);
+                        ^
+
+
 ib/targets/generic/blas_lapack_eigen.cpp:56:88: warning: format specifies type 'unsigned long' but the argument has type 'uint64_t' (aka 'unsigned long long') [-Wformat]
           printfQuda("BatchInvertMatrix (generic - Eigen): Nc = %d, batch = %lu\n", n, batch);
                                                                             ~~~        ^~~~~
@@ -163,3 +169,6 @@ git show 0eb85f477..77a9884ed include/targets/cuda/target_device.h|sed 's,/cuda/
 mk clean
 NPROC=64 w_iomp mk tests/blas_test tests/plaq_test
 NPROC=4 mk CXX=clang++-mp-11 OMPFLAGS=-fopenmp LDFLAGS='-Wl,-U,_omp_target_alloc -Wl,-U,_omp_target_associate_ptr -Wl,-U,_omp_target_free -Wl,-U,_omp_target_memcpy' tests/blas_test tests/plaq_test
+
+QUDA_RESOURCE_PATH=. ./tests/blas_test '--gtest_filter=QUDA/*/caxpy_single_single'
+QUDA_RESOURCE_PATH=. ./tests/blas_test '--gtest_filter=QUDA/BlasTest.verify/caxpy_single_single'
