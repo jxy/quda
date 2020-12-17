@@ -607,8 +607,11 @@ double test(Kernel kernel)
   case Kernel::caxpy:
     *xD = *xH;
     *yoD = *yH;
+    ompwip("caxpy DEVICE");
     blas::caxpy(a2, *xD, *yoD);
+    ompwip("caxpy HOST");
     blas::caxpy(a2, *xH, *yH);
+    ompwip("caxpy DONE");
     error = ERROR(yo);
     break;
 
@@ -676,7 +679,9 @@ double test(Kernel kernel)
 
   case Kernel::norm2:
     *xD = *xH;
+    ompwip("norm2 BEGIN");
     error = fabs(blas::norm2(*xD) - blas::norm2(*xH)) / blas::norm2(*xH);
+    ompwip("norm2 END");
     break;
 
   case Kernel::reDotProduct:
