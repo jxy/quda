@@ -165,11 +165,23 @@ namespace quda {
     /** Array storing the length of dimension */
     int x[QUDA_MAX_DIM];
 
-    int surface[QUDA_MAX_DIM];
-    int surfaceCB[QUDA_MAX_DIM];
-
     /** The extended lattice radius (if applicable) */
     int r[QUDA_MAX_DIM];
+
+    /** Array storing the local dimensions (x - 2 * r) */
+    int local_x[QUDA_MAX_DIM];
+
+    /** Array storing the surface size in each dimension */
+    int surface[QUDA_MAX_DIM];
+
+    /** Array storing the checkerboarded surface size in each dimension */
+    int surfaceCB[QUDA_MAX_DIM];
+
+    /** Array storing the local surface size in each dimension */
+    int local_surface[QUDA_MAX_DIM];
+
+    /** Array storing the local surface size in each dimension */
+    int local_surfaceCB[QUDA_MAX_DIM];
 
     /** Precision of the field */
     QudaPrecision precision;
@@ -367,10 +379,10 @@ namespace quda {
     static int buffer_recv_p2p_back[2][QUDA_MAX_DIM];
 
     /** Local copy of event used for peer-to-peer synchronization */
-    static cudaEvent_t ipcCopyEvent[2][2][QUDA_MAX_DIM];
+    static qudaEvent_t ipcCopyEvent[2][2][QUDA_MAX_DIM];
 
     /** Remote copy of event used for peer-to-peer synchronization */
-    static cudaEvent_t ipcRemoteCopyEvent[2][2][QUDA_MAX_DIM];
+    static qudaEvent_t ipcRemoteCopyEvent[2][2][QUDA_MAX_DIM];
 
     /** Whether we have initialized communication for this field */
     bool initComms;
@@ -471,12 +483,12 @@ namespace quda {
     /**
        Handle to local copy event used for peer-to-peer synchronization
     */
-    const cudaEvent_t& getIPCCopyEvent(int dir, int dim) const;
+    const qudaEvent_t& getIPCCopyEvent(int dir, int dim) const;
 
     /**
        Handle to remote copy event used for peer-to-peer synchronization
     */
-    const cudaEvent_t& getIPCRemoteCopyEvent(int dir, int dim) const;
+    const qudaEvent_t& getIPCRemoteCopyEvent(int dir, int dim) const;
 
     /**
        Static variable that is determined which ghost buffer we are using
@@ -497,6 +509,16 @@ namespace quda {
        @return The pointer to the lattice-dimension array
     */
     const int* X() const { return x; }
+
+    /**
+       @return Extended field radius
+    */
+    const int* R() const { return r; }
+
+    /**
+       @return Local checkboarded lattice dimensions
+    */
+    const int* LocalX() const { return local_x; }
 
     /**
        @return The full-field volume
@@ -531,6 +553,18 @@ namespace quda {
     int SurfaceCB(const int i) const { return surfaceCB[i]; }
 
     /**
+       @param i The dimension of the requested local surface
+       @return The single-parity local surface of dimension i
+    */
+    const int* LocalSurfaceCB() const { return local_surfaceCB; }
+
+    /**
+       @param i The dimension of the requested local surface
+       @return The single-parity local surface of dimension i
+    */
+    int LocalSurfaceCB(const int i) const { return local_surfaceCB[i]; }
+
+    /**
        @return The single-parity stride of the field
     */
     size_t Stride() const { return stride; }
@@ -540,11 +574,6 @@ namespace quda {
     */
     int Pad() const { return pad; }
     
-    /**
-       @return Extended field radius
-    */
-    const int* R() const { return r; }
-
     /**
        @return Type of ghost exchange
      */
@@ -800,6 +829,19 @@ namespace quda {
   inline const char *compile_type_str(const LatticeField &meta, QudaFieldLocation location_ = QUDA_INVALID_FIELD_LOCATION)
   {
     QudaFieldLocation location = (location_ == QUDA_INVALID_FIELD_LOCATION ? meta.Location() : location_);
+#ifdef JITIFY
+    return location == QUDA_CUDA_FIELD_LOCATION ? "GPU-jitify," : "CPU,";
+#else
+    return location == QUDA_CUDA_FIELD_LOCATION ? "GPU-offline," : "CPU,";
+#endif
+  }
+
+  /**
+     @brief Helper function for setting auxilary string
+     @return String containing location and compilation type
+   */
+  inline const char *compile_type_str(QudaFieldLocation location = QUDA_INVALID_FIELD_LOCATION)
+  {
 #ifdef JITIFY
     return location == QUDA_CUDA_FIELD_LOCATION ? "GPU-jitify," : "CPU,";
 #else

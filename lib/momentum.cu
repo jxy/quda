@@ -70,15 +70,13 @@ namespace quda {
 
   template <typename Float, int nColor, QudaReconstructType recon>
   class ActionMom : TunableReduction2D<> {
-    MomActionArg<Float, nColor, recon> arg;
-    const GaugeField &meta;
+    const GaugeField &mom;
     double &action;
 
   public:
     ActionMom(const GaugeField &mom, double &action) :
       TunableReduction2D(mom),
-      arg(mom),
-      meta(mom),
+      mom(mom),
       action(action)
     {
       apply(device::get_default_stream());
@@ -87,11 +85,12 @@ namespace quda {
     void apply(const qudaStream_t &stream)
     {
       TuneParam tp = tuneLaunch(*this, getTuning(), getVerbosity());
+      MomActionArg<Float, nColor, recon> arg(mom);
       launch<MomAction>(action, tp, stream, arg);
     }
 
-    long long flops() const { return 4*2*arg.threads.x*23; }
-    long long bytes() const { return 4*2*arg.threads.x*arg.mom.Bytes(); }
+    long long flops() const { return mom.Geometry()*mom.Volume()*23; }
+    long long bytes() const { return mom.Bytes(); }
   };
 
   double computeMomAction(const GaugeField& mom) {
@@ -107,31 +106,34 @@ namespace quda {
 
   template <typename Float, int nColor, QudaReconstructType recon>
   class UpdateMom : TunableReduction2D<> {
-    UpdateMomArg<Float, nColor, recon> arg;
-    const GaugeField &meta;
+    const GaugeField &force;
+    GaugeField &mom;
+    double coeff;
     std::vector<double> force_max;
 
   public:
-    UpdateMom(GaugeField &force, GaugeField &mom, double coeff, const char *fname) :
+    UpdateMom(const GaugeField &force, GaugeField &mom, double coeff, const char *fname) :
       TunableReduction2D(mom),
-      arg(mom, coeff, force),
-      meta(force),
+      force(force),
+      mom(mom),
+      coeff(coeff),
       force_max(2)
     {
       apply(device::get_default_stream());
-      if (forceMonitor()) forceRecord(force_max, arg.coeff, fname);
+      if (forceMonitor()) forceRecord(force_max, coeff, fname);
     }
 
     void apply(const qudaStream_t &stream)
     {
       TuneParam tp = tuneLaunch(*this, getTuning(), getVerbosity());
-      launch<MomUpdate, max_reducer2>(force_max, tp, stream, arg);
+      UpdateMomArg<Float, nColor, recon> arg(mom, coeff, force);
+      launch<MomUpdate>(force_max, tp, stream, arg);
     }
 
-    void preTune() { arg.mom.save();}
-    void postTune() { arg.mom.load();}
-    long long flops() const { return 4*2*arg.threads.x*(36+42); }
-    long long bytes() const { return 4*2*arg.threads.x*(2*arg.mom.Bytes()+arg.force.Bytes()); }
+    void preTune() { mom.backup();}
+    void postTune() { mom.restore();}
+    long long flops() const { return 4 * mom.Volume() * (36+42); }
+    long long bytes() const { return 2 * mom.Bytes() + force.Bytes(); }
   };
 
 #ifdef GPU_GAUGE_TOOLS

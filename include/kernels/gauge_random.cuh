@@ -19,11 +19,11 @@ namespace quda {
     int X[4]; // true grid dimensions
     int border[4];
     Gauge U;
-    RNG rng;
+    RNGState *rng;
     real sigma; // where U = exp(sigma * H)
     dim3 threads; // number of active threads required
 
-    GaugeGaussArg(const GaugeField &U, RNG &rng, double sigma) :
+    GaugeGaussArg(const GaugeField &U, RNGState *rng, double sigma) :
       U(U),
       rng(rng),
       sigma(sigma),
@@ -52,17 +52,16 @@ namespace quda {
     for (int i = 0; i < 4; ++i) {
       phi[i] = 2.0 * M_PI * rand1[i];
       radius[i] = sqrt(-log(rand2[i]));
-      // sincos(phi[i], &temp2[i], &temp1[i]);
-      temp2[i] = sin(phi[i]);
-      temp1[i] = cos(phi[i]);
+      quda::sincos(phi[i], &temp2[i], &temp1[i]);
       temp1[i] *= radius[i];
       temp2[i] *= radius[i];
     }
 
     // construct Anti-Hermitian matrix
-    ret(0, 0) = complex<real>(0.0, temp1[2] + sqrt(1.0/3.0) * temp2[3]);
-    ret(1, 1) = complex<real>(0.0, -temp1[2] + sqrt(1.0/3.0) * temp2[3]);
-    ret(2, 2) = complex<real>(0.0, -2.0 * sqrt(1.0/3.0) * temp2[3]);
+    const real rsqrt_3 = quda::rsqrt(3.0);
+    ret(0, 0) = complex<real>(0.0, temp1[2] + rsqrt_3 * temp2[3]);
+    ret(1, 1) = complex<real>(0.0, -temp1[2] + rsqrt_3 * temp2[3]);
+    ret(2, 2) = complex<real>(0.0, -2.0 * rsqrt_3 * temp2[3]);
     ret(0, 1) = complex<real>(temp1[0], temp1[1]);
     ret(1, 0) = complex<real>(-temp1[0], temp1[1]);
     ret(0, 2) = complex<real>(temp1[3], temp2[0]);
@@ -95,7 +94,7 @@ namespace quda {
         for (int mu = 0; mu < 4; mu++) arg.U(mu, linkIndex(x, arg.E), parity) = I;
       } else {
         for (int mu = 0; mu < 4; mu++) {
-          RNGState localState = arg.rng.State()[parity * arg.threads.x + x_cb];
+          RNGState localState = arg.rng[parity * arg.threads.x + x_cb];
 
           // generate Gaussian distributed su(n) fiueld
           Link u = gauss_su3<real, Link>(localState);
@@ -105,7 +104,7 @@ namespace quda {
           }
           arg.U(mu, linkIndex(x, arg.E), parity) = u;
 
-          arg.rng.State()[parity * arg.threads.x + x_cb] = localState;
+          arg.rng[parity * arg.threads.x + x_cb] = localState;
         }
       }
     }
