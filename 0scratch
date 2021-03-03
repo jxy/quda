@@ -164,6 +164,13 @@ duplicate symbol 'quda::blas::Amatrix_d' in:
 include/blas_magma.h
 include/quda_define.h
 
+
+Remote git status
+Remote git diff feature/generic_kernel
+Remote git pull
+diff -c include/targets/^(cuda omptarget)
+diff -c lib/targets/^(cuda omptarget)
+
 git show 0eb85f477..77a9884ed include/targets/cuda/target_device.h|sed 's,/cuda/,/omptarget/,g'|patch -p1
 
 mk clean

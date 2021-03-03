@@ -197,7 +197,6 @@ LIBOFILES=\
 	lib/targets/omptarget/device.o\
 	lib/targets/omptarget/malloc.o\
 	lib/targets/omptarget/quda_api.o\
-	lib/targets/omptarget/tune.o\
 	tests/host_reference/clover_reference.o\
 	tests/host_reference/domain_wall_dslash_reference.o\
 	tests/host_reference/dslash_reference.o\
