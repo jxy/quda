@@ -188,12 +188,15 @@ LIBOFILES=\
 	lib/staggered_prolong_restrict.o\
 	lib/timer.o\
 	lib/transfer.o\
+	lib/transform_reduce.o\
+	lib/tune.o\
 	lib/unitarize_force_quda.o\
 	lib/unitarize_links_quda.o\
 	lib/util_quda.o\
 	lib/vector_io.o\
 	lib/targets/generic/blas_lapack_eigen.o\
 	lib/targets/omptarget/blas_lapack_cublas.o\
+	lib/targets/omptarget/comm_target.o\
 	lib/targets/omptarget/device.o\
 	lib/targets/omptarget/malloc.o\
 	lib/targets/omptarget/quda_api.o\
