@@ -165,6 +165,20 @@ include/blas_magma.h
 include/quda_define.h
 
 
+cl linking takes more than 10 min with -O0
+
+w_iomp icpx -O0 -g -fiopenmp -fopenmp-targets=spir64 -D__STRICT_ANSI__ -Wl,--unresolved-symbols=ignore-in-object-files -o ../test/t0 ../test/t0.o lib/c*.o lib/targets/omptarget/*.o
+w_iomp LIBOMPTARGET_DEBUG=1 QUDA_ENABLE_TUNING=0 QUDA_RESOURCE_PATH=. ../test/t0
+
+crashes
+lib/r*.o
+
+offending files:
+lib/random.cu
+
+warning: include/kernels/reduce_core.cuh:141:9: loop not unrolled: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Wpass-failed=transform-warning]
+
+
 Remote git status
 Remote git diff feature/generic_kernel
 Remote git pull
