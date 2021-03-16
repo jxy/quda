@@ -194,3 +194,4 @@ NPROC=4 mk CXX=clang++-mp-11 OMPFLAGS=-fopenmp LDFLAGS='-Wl,-U,_omp_target_alloc
 QUDA_RESOURCE_PATH=. ./tests/blas_test '--gtest_filter=QUDA/*/caxpy_single_single'
 QUDA_RESOURCE_PATH=. ./tests/blas_test '--gtest_filter=QUDA/BlasTest.verify/caxpy_single_single'
 QUDA_ENABLE_TUNING=0 QUDA_RESOURCE_PATH=. ./tests/blas_test '--gtest_filter=QUDA/BlasTest.verify/caxpy_single_single'
+QUDA_ENABLE_TUNING=0 QUDA_RESOURCE_PATH=. ./tests/blas_test '--gtest_filter=QUDA/BlasTest.verify/norm2_single_single'

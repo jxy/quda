@@ -73,6 +73,7 @@ namespace quda {
     void launch_device(std::vector<T> &result, const TuneParam &tp, const qudaStream_t &stream, Arg &arg,
                        const std::vector<constant_param_t> &param = dummy_param)
     {
+      ompwip();
 #ifdef JITIFY
       arg.launch_error = launch_jitify<Transformer, true, Arg, true>("Reduction2D", tp, stream, arg, param);
 #else
@@ -286,6 +287,7 @@ namespace quda {
     void launch_device(std::vector<T> &result, const TuneParam &tp, const qudaStream_t &stream, Arg &arg,
                        const std::vector<constant_param_t> &param = dummy_param)
     {
+      ompwip();
 #ifdef JITIFY
       arg.launch_error = launch_jitify<Transformer, true, Arg, true>("MultiReduction", tp, stream, arg, param);
 #else
