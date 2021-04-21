@@ -44,9 +44,11 @@ LIBOFILES=\
 	lib/color_spinor_pack.o\
 	lib/color_spinor_util.o\
 	lib/comm_common.o\
-	lib/comm_single.o\
+	lib/communicator_single.o\
+	lib/communicator_stack.o\
 	lib/contract.o\
 	lib/copy_clover.o\
+	lib/copy_clover_offset.o\
 	lib/copy_color_spinor.o\
 	lib/copy_color_spinor_dd.o\
 	lib/copy_color_spinor_dh.o\
@@ -68,6 +70,7 @@ LIBOFILES=\
 	lib/copy_color_spinor_mg_sh.o\
 	lib/copy_color_spinor_mg_sq.o\
 	lib/copy_color_spinor_mg_ss.o\
+	lib/copy_color_spinor_offset.o\
 	lib/copy_color_spinor_qd.o\
 	lib/copy_color_spinor_qh.o\
 	lib/copy_color_spinor_qq.o\
@@ -81,6 +84,7 @@ LIBOFILES=\
 	lib/copy_gauge_extended.o\
 	lib/copy_gauge_half.o\
 	lib/copy_gauge_mg.o\
+	lib/copy_gauge_offset.o\
 	lib/copy_gauge_quarter.o\
 	lib/copy_gauge_single.o\
 	lib/covDev.o\
