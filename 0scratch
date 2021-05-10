@@ -178,6 +178,59 @@ lib/random.cu
 
 warning: include/kernels/reduce_core.cuh:141:9: loop not unrolled: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Wpass-failed=transform-warning]
 
+------
+
+include/targets/omptarget/kernel.h:61:50: warning: Type 'quda::CopyGaugeExArg<double, double, 18, quda::gauge::FloatNOrder<double, 18, 2, 18, QUDA_STAGGERED_PHASE_NO, true, QUDA_GHOST_EXCHANGE_INVALID, false>, quda::gauge::FloatNOrder<double, 18, 2, 18, QUDA_STAGGERED_PHASE_NO, true, QUDA_GHOST_EXCHANGE_INVALID, false>, true>' is not trivially copyable and not guaranteed to be mapped correctly [-Wopenmp-mapping]
+
+------
+
+spirv does not like zero length arrays
+include/shared_memory_cache_helper.cuh:/static constexpr int n_element = sizeof(T) / sizeof(atom_t);
+n_element can be zero
+change to -DQUDA_PRECISION=12
+
+------
+
+everything compiles and links fine with
+-DQUDA_PRECISION=4 -DQUDA_RECONSTRUCT=4
+or
+-DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=4
+
+fails to link with
+-DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=6
+or
+-DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=5
+
+------
+
+include/quda_api.h:/qudaLaunchKernel
+lib/targets/omptarget/quda_api.cpp:/qudaLaunchKernel
+
+include/tunable_reduction.h:348
+include/reduce_helper.h:269
+
+------
+
+In file included from lib/transform_reduce.cu:1:
+include/reduce_helper.h:269:28: warning: 'parallel' construct, in a declare target function, was ignored for calls from target regions. [-Wpass-failed=openmp]
+    __device__ inline void reduce(Arg &arg, const Reducer &r, const T &in, const int idx = 0)
+
+include/float_vector.h:166:87: error: function template partial specialization is not allowed
+  template <typename scalar, int n> __device__ __host__ inline vector_type<scalar, n> zero<vector_type<scalar, n>>()
+                                                                                      ^   ~~~~~~~~~~~~~~~~~~~~~~~~
+
+include/float_vector.h:176:3: warning: extraneous template parameter list in template specialization
+  template <> template <typename scalar, int n> __device__ __host__ inline vector_type<scalar, n> zero<vector_type<scalar, n>>()
+  ^~~~~~~~~~~
+include/float_vector.h:176:99: error: function template partial specialization is not allowed
+  template <> template <typename scalar, int n> __device__ __host__ inline vector_type<scalar, n> zero<vector_type<scalar, n>>()
+                                                                                                  ^   ~~~~~~~~~~~~~~~~~~~~~~~~
+
+include/float_vector.h:166:3: error: extraneous template parameter list in template specialization or out-of-line template definition
+  template <typename scalar, int n> template <> __device__ __host__ inline vector_type<scalar, n> zero<vector_type<scalar, n>>()
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+------
 
 Remote git status
 Remote git diff feature/generic_kernel
