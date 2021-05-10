@@ -213,6 +213,7 @@ LIBOFILES=\
 	tests/host_reference/clover_reference.o\
 	tests/host_reference/domain_wall_dslash_reference.o\
 	tests/host_reference/dslash_reference.o\
+	tests/host_reference/dslash_test_helpers.o\
 	tests/host_reference/staggered_dslash_reference.o\
 	tests/host_reference/wilson_dslash_reference.o\
 	tests/utils/command_line_params.o\
