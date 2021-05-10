@@ -43,6 +43,7 @@ LIBOFILES=\
 	lib/coarse_op.o\
 	lib/coarse_op_preconditioned.o\
 	lib/coarsecoarse_op.o\
+	lib/coarsecoarse_op_mma.o\
 	lib/color_spinor_field.o\
 	lib/color_spinor_pack.o\
 	lib/color_spinor_util.o\
