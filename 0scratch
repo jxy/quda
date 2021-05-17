@@ -232,25 +232,6 @@ include/float_vector.h:166:3: error: extraneous template parameter list in templ
 
 ------
 
-* iris
-
-13 QUDA/BlasTest.verify/caxpyXmazMR_*
-11 FAILED caxpyXmazMR_double_double
-11 FAILED caxpyXmazMR_single_double
-10 FAILED caxpyXmazMR_single_single
-
-* arcticus
-
-8 QUDA/BlasTest.verify/*
-5 FAILED caxpyXmazMR_single_double
-4 FAILED caxpyXmazMR_single_single
-
-11 QUDA/BlasTest.verify/caxpyXmazMR_*
-9  FAILED caxpyXmazMR_single_double
-10 FAILED caxpyXmazMR_single_double
-
-------
-
 Remote git status
 Remote git diff feature/generic_kernel
 Remote git pull
