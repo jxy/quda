@@ -11,11 +11,14 @@ OMPFLAGS=-fiopenmp -fopenmp-targets=spir64 -D__STRICT_ANSI__
 CXXFLAGS=-Ofast -std=gnu++17
 # CXXFLAGS=-march=native -Ofast
 CXXFLAGS=$CXXFLAGS -Iinclude/targets/omptarget -Iinclude/targets/generic -Iinclude -Itests/utils -Iinclude/externals -Ilib -Itests/host_reference -I../eigen-3.3.7 -Itests/googletest/include -Itests/googletest
+# CXXFLAGS=$CXXFLAGS -I$CMPROOT/linux/include/sycl -DCL_TARGET_OPENCL_VERSION=300
 # CXXFLAGS=$CXXFLAGS -DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=7
 CXXFLAGS=$CXXFLAGS -DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=4
 # CXXFLAGS=$CXXFLAGS -DQUDA_PRECISION=4 -DQUDA_RECONSTRUCT=4
 CXXFLAGS=$CXXFLAGS -DQUDA_MAX_MULTI_BLAS_N=4 -DQUDA_FAST_COMPILE_REDUCE -DQUDA_HASH="$HASH"
 CXXFLAGS=$CXXFLAGS -DBUILD_QDP_INTERFACE
+CXXFLAGS=$CXXFLAGS -DGPU_GAUGE_ALG -DGPU_UNITARIZE -DGPU_FATLINK
+CXXFLAGS=$CXXFLAGS -DBUILD_MILC_INTERFACE
 CXXFLAGS=$CXXFLAGS -DGPU_WILSON_DIRAC
 # CXXFLAGS=$CXXFLAGS -DMPI_COMMS -DMULTI_GPU
 CXXFLAGS=$CXXFLAGS -DQUDA_BACKEND_OMPTARGET
@@ -183,6 +186,10 @@ LIBOFILES=\
 	lib/multi_blas_quda.o\
 	lib/multi_reduce_quda.o\
 	lib/multigrid.o\
+	lib/pgauge_det_trace.o\
+	lib/pgauge_exchange.o\
+	lib/pgauge_init.o\
+	lib/pgauge_heatbath.o\
 	lib/prolongator.o\
 	lib/quda_arpack_interface.o\
 	lib/random.o\
