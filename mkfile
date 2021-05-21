@@ -8,7 +8,7 @@ CXX=icpx
 OMPFLAGS=-fiopenmp -fopenmp-targets=spir64 -D__STRICT_ANSI__
 
 # CXXFLAGS=-O0 -g -std=gnu++17
-CXXFLAGS=-Ofast -march=native -std=gnu++17
+CXXFLAGS=-Ofast -march=native -std=gnu++17 -Wno-format-security -Wno-unused-result
 CXXFLAGS=$CXXFLAGS -Iinclude/targets/omptarget -Iinclude/targets/generic -Iinclude -Itests/utils -Iinclude/externals -Ilib -Itests/host_reference -I../eigen-3.3.9 -Itests/googletest/include -Itests/googletest
 # CXXFLAGS=$CXXFLAGS -DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=7
 CXXFLAGS=$CXXFLAGS -DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=4
