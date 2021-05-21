@@ -269,6 +269,11 @@ include/instantiate.h:266:7: note: in instantiation of member function 'quda::St
 
 ------
 
+# just use `tar x` with bsdtar
+curl -L https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.bz2 | tar xj
+
+------
+
 Remote git status
 Remote git diff feature/generic_kernel
 Remote git pull
