@@ -232,6 +232,43 @@ include/float_vector.h:166:3: error: extraneous template parameter list in templ
 
 ------
 
+In file included from lib/staggered_kd_apply_xinv.cu:8:
+include/kernels/staggered_kd_apply_xinv_kernel.cuh:194:37: error: use of undeclared identifier 'WarpReduce'
+            const complex the_sum = WarpReduce<complex, 16>().Sum(prod);
+                                    ^
+include/targets/omptarget/kernel.h:16:7: note: in instantiation of member function 'quda::StaggeredKDBlock<quda::ApplyStaggeredKDBlockArg<float, float, 48, 3, false, quda::colorspinor::FloatNOrder<float, 1, 3, 2, false, false>, quda::gauge::FieldOrder<float, 48, 1, QUDA_MILC_GAUGE_ORDER, true>>>::operator()' requested here
+      f(i);
+      ^
+include/targets/omptarget/kernel.h:43:9: note: in instantiation of function template specialization 'quda::Kernel1D_impl<StaggeredKDBlock, quda::ApplyStaggeredKDBlockArg<float, float, 48, 3, false, quda::colorspinor::FloatNOrder<float, 1, 3, 2, false, false>, quda::gauge::FieldOrder<float, 48, 1, QUDA_MILC_GAUGE_ORDER, true>>, false>' requested here
+        Kernel1D_impl<Functor, Arg, grid_stride>(*(Arg *)buffer);
+        ^
+include/tunable_nd.h:82:65: note: in instantiation of function template specialization 'quda::Kernel1D<StaggeredKDBlock, quda::ApplyStaggeredKDBlockArg<float, float, 48, 3, false, quda::colorspinor::FloatNOrder<float, 1, 3, 2, false, false>, quda::gauge::FieldOrder<float, 48, 1, QUDA_MILC_GAUGE_ORDER, true>>, false>' requested here
+      TunableKernel::launch_device<Functor, grid_stride>(KERNEL(Kernel1D), tp, stream, arg);
+                                                                ^
+lib/staggered_kd_apply_xinv.cu:62:9: note: in instantiation of function template specialization 'quda::TunableKernel1D_base<false>::launch_device<StaggeredKDBlock, quda::ApplyStaggeredKDBlockArg<float, float, 48, 3, false, quda::colorspinor::FloatNOrder<float, 1, 3, 2, false, false>, quda::gauge::FieldOrder<float, 48, 1, QUDA_MILC_GAUGE_ORDER, true>>>' requested here
+        launch_device<StaggeredKDBlock>(tp, stream, arg);
+        ^
+lib/staggered_kd_apply_xinv.cu:108:7: note: in instantiation of member function 'quda::ApplyStaggeredKDBlock<quda::ApplyStaggeredKDBlockArg<float, float, 48, 3, false, quda::colorspinor::FloatNOrder<float, 1, 3, 2, false, false>, quda::gauge::FieldOrder<float, 48, 1, QUDA_MILC_GAUGE_ORDER, true>>>::apply' requested here
+    y.apply(device::get_default_stream());
+      ^
+lib/staggered_kd_apply_xinv.cu:131:10: note: in instantiation of function template specialization 'quda::applyStaggeredKDBlock<float, float, 3, 48, false, quda::colorspinor::FloatNOrder<float, 1, 3, 2, false, false>, quda::gauge::FieldOrder<float, 48, 1, QUDA_MILC_GAUGE_ORDER, true>>' requested here
+    else applyStaggeredKDBlock<vFloatSpinor, vFloatGauge, fineColor, coarseDof, false>(outAccessor, inAccessor, xInvAccessor, out, in, Xinv);
+         ^
+lib/staggered_kd_apply_xinv.cu:142:7: note: in instantiation of function template specialization 'quda::applyStaggeredKDBlock<float, float, 3, 1, 48>' requested here
+      applyStaggeredKDBlock<vFloatSpinor, vFloatGauge, fineColor, fineSpin, 48>(out, in, Xinv, dagger);
+      ^
+lib/staggered_kd_apply_xinv.cu:159:7: note: in instantiation of function template specialization 'quda::applyStaggeredKDBlock<float, float, 3, 1>' requested here
+      applyStaggeredKDBlock<vFloatSpinor, vFloatGauge, 3, 1>(out, in, Xinv, dagger);
+      ^
+lib/staggered_kd_apply_xinv.cu:171:9: note: in instantiation of function template specialization 'quda::applyStaggeredKDBlock<float, float>' requested here
+        applyStaggeredKDBlock<vFloatSpinor, float>(out, in, Xinv, dagger);
+        ^
+include/instantiate.h:266:7: note: in instantiation of member function 'quda::StaggeredKDBlockApply<float>::StaggeredKDBlockApply' requested here
+      Apply<float>(field, args...);
+      ^
+
+------
+
 Remote git status
 Remote git diff feature/generic_kernel
 Remote git pull
