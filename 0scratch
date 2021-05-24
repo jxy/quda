@@ -274,6 +274,10 @@ curl -L https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.bz2 | 
 
 ------
 
+------
+
+https://github.com/lattice/quda/compare/feature/generic_kernel...jxy:omp
+
 Remote git status
 Remote git diff feature/generic_kernel
 Remote git pull
