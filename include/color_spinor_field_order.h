@@ -1126,7 +1126,9 @@ namespace quda {
 
   __device__ __host__ inline void load(complex v[length / 2], int x, int parity = 0) const
   {
-    auto in = &field[(parity * volumeCB + x) * length];
+    // auto in = &field[(parity * volumeCB + x) * length];
+    auto in = &reinterpret_cast<const complex*>(field)[(parity * volumeCB + x) * length / 2];
+    static_assert(sizeof(*in)==2*sizeof(*field));
     complex v_[length/2];
     block_load<complex, length/2>(v_, reinterpret_cast<const complex*>(in));
 
@@ -1214,7 +1216,9 @@ namespace quda {
 
   __device__ __host__ inline void load(complex v[length / 2], int x, int parity = 0) const
   {
-    auto in = &field[(parity * volumeCB + x) * length];
+    // auto in = &field[(parity * volumeCB + x) * length];
+    auto in = &reinterpret_cast<const complex*>(field)[(parity * volumeCB + x) * length / 2];
+    static_assert(sizeof(*in)==2*sizeof(*field));
     block_load<complex, length/2>(v, reinterpret_cast<const complex*>(in));
   }
 

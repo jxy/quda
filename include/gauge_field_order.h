@@ -1732,7 +1732,9 @@ namespace quda {
 
         __device__ __host__ inline void loadGhost(complex v[length / 2], int x, int dir, int parity, real = 1.0) const
         {
-          auto in = &ghost[dir][(parity * faceVolumeCB[dir] + x) * length];
+          // auto in = &ghost[dir][(parity * faceVolumeCB[dir] + x) * length];
+          auto in = &reinterpret_cast<complex*>(ghost[dir])[(parity * faceVolumeCB[dir] + x) * length / 2];
+          static_assert(sizeof(*in)==2*sizeof(*ghost[dir]));
           block_load<complex, length/2>(v, reinterpret_cast<complex*>(in));
         }
 
@@ -1789,7 +1791,9 @@ namespace quda {
 
       __device__ __host__ inline void load(complex v[length / 2], int x, int dir, int parity, real = 1.0) const
       {
-        auto in = &gauge[dir][(parity * volumeCB + x) * length];
+        // auto in = &gauge[dir][(parity * volumeCB + x) * length];
+        auto in = &reinterpret_cast<complex*>(gauge[dir])[(parity * volumeCB + x) * length / 2];
+        static_assert(sizeof(*in)==2*sizeof(*gauge[dir]));
         block_load<complex, length/2>(v, reinterpret_cast<complex*>(in));
       }
 
@@ -1882,7 +1886,9 @@ namespace quda {
 
     __device__ __host__ inline void load(complex v[length / 2], int x, int dir, int parity, real = 1.0) const
     {
-      auto in = &gauge[((parity * volumeCB + x) * geometry + dir) * length];
+      // auto in = &gauge[((parity * volumeCB + x) * geometry + dir) * length];
+      auto in = &reinterpret_cast<complex*>(gauge)[((parity * volumeCB + x) * geometry + dir) * length / 2];
+      static_assert(sizeof(*in)==2*sizeof(*gauge));
       block_load<complex, length/2>(v, reinterpret_cast<complex*>(in));
     }
 
@@ -1948,7 +1954,9 @@ namespace quda {
     __device__ __host__ inline void load(complex v[length / 2], int x, int dir, int parity, real = 1.0) const
     {
       // get base pointer
-      auto in = reinterpret_cast<const Float*>(reinterpret_cast<const char*>(gauge) + (parity*volumeCB+x)*size + offset + dir * length * sizeof(Float));
+      // auto in = reinterpret_cast<const Float*>(reinterpret_cast<const char*>(gauge) + (parity*volumeCB+x)*size + offset + dir * length * sizeof(Float));
+      auto in = &reinterpret_cast<const complex*>(gauge)[(((parity*volumeCB+x)*size + offset)/sizeof(Float) + dir * length) / 2];
+      static_assert(sizeof(complex)==2*sizeof(Float));
       block_load<complex, length/2>(v, reinterpret_cast<const complex*>(in));
     }
 
