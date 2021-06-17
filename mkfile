@@ -191,6 +191,7 @@ LIBOFILES=\
 	lib/llfat_quda.o\
 	lib/max_gauge.o\
 	lib/mdw_fused_dslash.o\
+	lib/milc_interface.o\
 	lib/momentum.o\
 	lib/multi_blas_quda.o\
 	lib/multi_reduce_quda.o\
