@@ -10,6 +10,7 @@ OMPFLAGS=-fiopenmp -fopenmp-targets=spir64_gen
 # CXXFLAGS=-O0 -g -std=gnu++17
 CXXFLAGS=-O2 -ffast-math
 CXXFLAGS=$CXXFLAGS -std=gnu++17 -Wno-format-security -Wno-unused-result -Wno-attributes
+CXXFLAGS=$CXXFLAGS -fPIC
 CXXFLAGS=$CXXFLAGS -Iinclude/targets/omptarget -Iinclude/targets/generic -Iinclude -Itests/utils -Iinclude/externals -Ilib -Itests/host_reference -I../eigen-3.3.9 -Itests/googletest/include -Itests/googletest
 # CXXFLAGS=$CXXFLAGS -DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=7
 CXXFLAGS=$CXXFLAGS -DQUDA_PRECISION=12 -DQUDA_RECONSTRUCT=4
@@ -36,6 +37,9 @@ LDFLAGS=-rdynamic
 LDFLAGS=$LDFLAGS -Xopenmp-target-backend '-device xehp'
 
 TFILES=`{ls tests/*.cpp}
+
+SOFILE=lib/libquda.so
+SLDFLAGS=-Llib -Wl,-rpath=`{pwd}/lib -lquda
 
 EXE=${TFILES:%.cpp=%}
 EXEOFILES=${EXE:%=%.o}
@@ -227,6 +231,8 @@ LIBOFILES=\
 	lib/targets/omptarget/device.o\
 	lib/targets/omptarget/malloc.o\
 	lib/targets/omptarget/quda_api.o\
+
+TESTOFILES=\
 	tests/host_reference/clover_reference.o\
 	tests/host_reference/domain_wall_dslash_reference.o\
 	tests/host_reference/dslash_reference.o\
@@ -244,11 +250,15 @@ LIBOFILES=\
 
 GTESTOFILES=tests/googletest/src/gtest-all.o
 
-DFILES=${LIBOFILES:%.o=%.d} ${EXEOFILES:%.o=%.d} ${GTESTOFILES:%.o=%.d}
-<|cat $DFILES>[2]/dev/null||true
+DFILES=${LIBOFILES:%.o=%.d} ${EXEOFILES:%.o=%.d} ${TESTOFILES:%.o=%.d} ${GTESTOFILES:%.o=%.d}
 
-tests/%: tests/%.o $LIBOFILES $GTESTOFILES
-	$CXX $OMPFLAGS $LDFLAGS -o $target $prereq
+$SOFILE: $LIBOFILES
+	$CXX $OMPFLAGS $LDFLAGS -fPIC -shared -o $target $prereq
+
+tests/%: tests/%.o $SOFILE $TESTOFILES $GTESTOFILES
+	$CXX $OMPFLAGS $LDFLAGS $SLDFLAGS -o $target tests/$stem.o $TESTOFILES $GTESTOFILES
+
+<|cat $DFILES>[2]/dev/null||true
 
 %.o: %.cc
 	$CXX $CXXFLAGS $OMPFLAGS -MMD -o $target -c $stem.cc
