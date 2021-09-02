@@ -129,11 +129,14 @@ LIBOFILES=\
 	lib/dirac_wilson.o\
 	lib/dslash5_domain_wall.o\
 	lib/dslash5_mobius_eofa.o\
+	lib/dslash_clover_helper.o\
 	lib/dslash_coarse.o\
 	lib/dslash_coarse_dagger.o\
 	lib/dslash_domain_wall_4d.o\
 	lib/dslash_domain_wall_5d.o\
+	lib/dslash_gamma_helper.o\
 	lib/dslash_improved_staggered.o\
+	lib/dslash_mdw_fused.o\
 	lib/dslash_ndeg_twisted_mass.o\
 	lib/dslash_ndeg_twisted_mass_preconditioned.o\
 	lib/dslash_pack2.o\
@@ -194,7 +197,6 @@ LIBOFILES=\
 	lib/lattice_field.o\
 	lib/llfat_quda.o\
 	lib/max_gauge.o\
-	lib/mdw_fused_dslash.o\
 	lib/milc_interface.o\
 	lib/momentum.o\
 	lib/multi_blas_quda.o\
@@ -267,6 +269,8 @@ tests/%: tests/%.o $SOFILE $TESTOFILES $GTESTOFILES
 %.o: %.cu
 	$CXX $CXXFLAGS $OMPFLAGS -MMD -x c++ -o $target -c $stem.cu
 
+'$'%:VQ:
+	whatis $stem
 allclean:V:	clean
 	rm -f $EXE
 clean:V:	depclean
