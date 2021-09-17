@@ -1,3 +1,13 @@
+todo:
+
+include/reduce_helper.h: remove explicit inlining, try forceinline
+include/targets/generic/fast_intdiv.h: revert and check
+include/targets/omptarget/warp_collective.h: check warp_combine
+include/tune_quda.h: revert and check
+lib/targets/generic/blas_lapack_eigen.cpp: revert and check
+
+------
+
 warning: include/kernels/reduce_core.cuh:141:9: loop not unrolled: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Wpass-failed=transform-warning]
 
 ------
