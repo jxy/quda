@@ -19,7 +19,6 @@ CXXFLAGS=$CXXFLAGS -fPIC
 CXXFLAGS=$CXXFLAGS -Iinclude/targets/omptarget -Iinclude/targets/generic -Iinclude -Itests/utils -Iinclude/externals -Ilib -Itests/host_reference -I../eigen-3.3.9 -Itests/googletest/include -Itests/googletest
 CXXFLAGS=$CXXFLAGS -DQUDA_BACKEND_OMPTARGET
 CXXFLAGS=$CXXFLAGS -DQUDA_MAX_MULTI_BLAS_N=4 -DQUDA_HASH="$HASH"
-# CXXFLAGS=$CXXFLAGS -DMPI_COMMS -DMULTI_GPU
 
 <conf.$CONF.mk
 
@@ -37,7 +36,7 @@ SLDFLAGS=-Llib -Wl,-rpath=`{pwd}/lib -lquda
 EXE=${TFILES:%.cpp=%}
 EXEOFILES=${EXE:%=%.o}
 
-LIBOFILES=\
+LIBOFILES=$LIBOFILES\
 	lib/block_orthogonalize.o\
 	lib/blas_magma.o\
 	lib/blas_quda.o\
@@ -57,7 +56,6 @@ LIBOFILES=\
 	lib/color_spinor_pack.o\
 	lib/color_spinor_util.o\
 	lib/comm_common.o\
-	lib/communicator_single.o\
 	lib/communicator_stack.o\
 	lib/contract.o\
 	lib/copy_clover.o\
@@ -235,6 +233,7 @@ TESTOFILES=\
 	tests/host_reference/staggered_dslash_reference.o\
 	tests/host_reference/wilson_dslash_reference.o\
 	tests/utils/command_line_params.o\
+	tests/utils/face_gauge.o\
 	tests/utils/host_blas.o\
 	tests/utils/host_utils.o\
 	tests/utils/llfat_utils.o\
