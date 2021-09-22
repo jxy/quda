@@ -13,20 +13,20 @@ CXX=icpx
 OMPFLAGS=-fiopenmp -fopenmp-targets=spir64_gen
 
 # CXXFLAGS=-O0 -g -std=gnu++17
-CXXFLAGS=-O2 -ffast-math
+CXXFLAGS=-O3
 CXXFLAGS=$CXXFLAGS -std=gnu++17 -Wno-format-security -Wno-unused-result -Wno-attributes
 CXXFLAGS=$CXXFLAGS -fPIC
 CXXFLAGS=$CXXFLAGS -Iinclude/targets/omptarget -Iinclude/targets/generic -Iinclude -Itests/utils -Iinclude/externals -Ilib -Itests/host_reference -I../eigen-3.3.9 -Itests/googletest/include -Itests/googletest
 CXXFLAGS=$CXXFLAGS -DQUDA_BACKEND_OMPTARGET
 CXXFLAGS=$CXXFLAGS -DQUDA_MAX_MULTI_BLAS_N=4 -DQUDA_HASH="$HASH"
 
-<conf.$CONF.mk
-
-all:V:	$TARG
-
 LDFLAGS=-rdynamic
 # LDFLAGS=$LDFLAGS -Xopenmp-target-backend '-device skl'
 LDFLAGS=$LDFLAGS -Xopenmp-target-backend '-device xehp'
+
+<conf.$CONF.mk
+
+all:V:	$TARG
 
 TFILES=`{ls tests/*.cpp}
 
@@ -250,7 +250,7 @@ $SOFILE: $LIBOFILES
 	$CXX $OMPFLAGS $LDFLAGS -fPIC -shared -o $target $prereq
 
 tests/%: tests/%.o $SOFILE $TESTOFILES $GTESTOFILES
-	$CXX $OMPFLAGS $LDFLAGS $SLDFLAGS -o $target tests/$stem.o $TESTOFILES $GTESTOFILES
+	$CXX $OMPFLAGS $SLDFLAGS $LDFLAGS -o $target tests/$stem.o $TESTOFILES $GTESTOFILES
 
 <|cat $DFILES>[2]/dev/null||true
 
