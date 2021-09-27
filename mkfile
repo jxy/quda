@@ -2,7 +2,7 @@ MKSHELL=$PLAN9/bin/rc
 
 HASH=omptarget,FIXME_with_a_unique_string
 
-CONF=quick
+CONF=fast
 
 TARG=plaq_test blas_test invert_test dslash_ctest dslash_test
 TARG=${TARG:%=tests/%}
