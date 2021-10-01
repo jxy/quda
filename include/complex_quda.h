@@ -600,7 +600,7 @@ public:
   complex<int8_t>() = default;
 
   constexpr complex<int8_t>(const int8_t &re, const int8_t &im = int8_t()) :
-    char2{re, im} { }
+    char2{static_cast<char>(re), static_cast<char>(im)} { }
 
   __host__ __device__ inline complex<int8_t> &operator+=(const complex<int8_t> &z)
   {
