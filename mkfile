@@ -10,7 +10,7 @@ TARG=${TARG:%=tests/%}
 # CXX=mpicxx
 CXX=icpx
 # OMPFLAGS=-fopenmp
-OMPFLAGS=-fiopenmp -fopenmp-targets=spir64_gen
+OMPFLAGS=-fiopenmp -fopenmp-targets=spir64_gen -fopenmp-version=51
 
 # CXXFLAGS=-O0 -g -std=gnu++17
 CXXFLAGS=-O3
