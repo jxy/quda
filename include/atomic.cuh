@@ -11,16 +11,18 @@
  */
 
 #ifdef QUDA_BACKEND_OMPTARGET
-static inline unsigned int
+#ifndef __OPENMP_NVPTX__
+static inline unsigned int __attribute__((nothrow))
 __float_as_uint(float x)
 {
   return reinterpret_cast<unsigned int &>(x);  // FIXME UB?
 }
-static inline float
+static inline float __attribute__((nothrow))
 __uint_as_float(unsigned int x)
 {
   return reinterpret_cast<float &>(x);  // FIXME UB?
 }
+#endif
 
 static inline int atomicAdd(int *x, int v)
 {
@@ -52,7 +54,7 @@ static inline double atomicAdd(double *x, double v)
 }
 static inline unsigned int atomicCAS(unsigned int*x, unsigned int c, unsigned int v)
 {
-#if 0
+#if 1
   unsigned int old = *x, assumed;
   do{
     assumed = old;
@@ -73,7 +75,7 @@ static inline unsigned int atomicCAS(unsigned int*x, unsigned int c, unsigned in
 }
 static inline uint32_t atomicMax(uint32_t *x, uint32_t v)
 {
-#if 0
+#if 1
   unsigned int old = *x, assumed;
   do{
     assumed = old;
