@@ -110,6 +110,8 @@ namespace quda {
         // In OpenMP, this runs in the main thread of each team, and `in` is already the block reduction value.
         bool isLastBlockDone;
         // if (threadIdx.x == 0 && threadIdx.y == 0)
+        #pragma omp parallel
+        #pragma omp master
         { // This is the main thread per team
           // if(blockIdx.x==0) printf("team %d: value: %g\n", omp_get_team_num(), *reinterpret_cast<double *>(&value));
           dparg->partial[idx * gridDim.x + blockIdx.x] = value;
@@ -203,6 +205,8 @@ namespace quda {
         // In OpenMP, this runs in the main thread of each team, and `in` is already the block reduction value.
         bool isLastBlockDone;
         // if (threadIdx.x == 0 && threadIdx.y == 0)
+        #pragma omp parallel
+        #pragma omp master
         { // This is the main thread per team
           dparg->partial[idx * gridDim.x + blockIdx.x] = value;
 
@@ -346,6 +350,8 @@ namespace quda {
         // In OpenMP, this runs in the main thread of each team, and `in` is already the block reduction value.
         bool isLastBlockDone;
         // if (threadIdx.x == 0 && threadIdx.y == 0)
+        #pragma omp parallel
+        #pragma omp master
         { // This is the main thread per team
           // if(blockIdx.x==0) printf("team %d: value: %g\n", omp_get_team_num(), *reinterpret_cast<double *>(&value));
           dparg->partial[idx * gridDim.x + blockIdx.x] = value;
@@ -443,6 +449,8 @@ namespace quda {
         // In OpenMP, this runs in the main thread of each team, and `in` is already the block reduction value.
         bool isLastBlockDone;
         // if (threadIdx.x == 0 && threadIdx.y == 0)
+        #pragma omp parallel
+        #pragma omp master
         { // This is the main thread per team
           dparg->partial[idx * gridDim.x + blockIdx.x] = value;
 
