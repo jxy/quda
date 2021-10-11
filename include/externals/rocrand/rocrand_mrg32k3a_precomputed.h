@@ -372,6 +372,7 @@ static constexpr __device__ unsigned long long d_A1P67[MRG323A_N] =
 
     };
 
+#pragma omp declare target
 static constexpr unsigned long long h_A1P67[MRG323A_N] =
     {
         82758667, 1871391091, 4127413238, 3672831523, 69195019, 1871391091, 3672091415, 3528743235, 69195019,
@@ -440,6 +441,7 @@ static constexpr unsigned long long h_A1P67[MRG323A_N] =
         3739389517, 1110440720, 917457922, 2163873618, 3707591763, 1110440720, 2667061910, 2533383962, 3707591763,
 
     };
+#pragma omp end declare target
 
 static constexpr __device__ unsigned long long d_A2P67[MRG323A_N] =
     {
@@ -510,6 +512,7 @@ static constexpr __device__ unsigned long long d_A2P67[MRG323A_N] =
 
     };
 
+#pragma omp declare target
 static constexpr unsigned long long h_A2P67[MRG323A_N] =
     {
         1511326704, 3759209742, 1610795712, 4292754251, 1511326704, 3889917532, 3859662829, 4292754251, 3708466080,
@@ -578,6 +581,7 @@ static constexpr unsigned long long h_A2P67[MRG323A_N] =
         1773339925, 948403862, 1999624391, 983864203, 1773339925, 3734776305, 314407045, 983864203, 2648614071,
 
     };
+#pragma omp end declare target
 
 static constexpr __device__ unsigned long long d_A1P127[MRG323A_N] =
     {
