@@ -27,7 +27,8 @@ namespace quda {
     extern __constant__ char buffer[max_constant_size()];
 #else
     #pragma omp declare target
-    __constant__ char buffer[max_constant_size()];
+    static char *buffer = nullptr;
+    // __constant__ char buffer[max_constant_size()];
     #pragma omp end declare target
 #endif
 
@@ -42,7 +43,12 @@ namespace quda {
        @brief Helper function that returns a pointer to the
        __constant__ memory buffer.
      */
-    template <typename Arg> constexpr std::enable_if_t<!use_kernel_arg<Arg>(), void*> get_constant_buffer() { return omp_get_mapped_ptr(buffer, omp_get_default_device()); }
+    template <typename Arg> constexpr std::enable_if_t<!use_kernel_arg<Arg>(), void*> get_constant_buffer() {
+      if(!buffer)
+        buffer = (char *)omp_target_alloc(max_constant_size(), omp_get_default_device());
+      return buffer;
+      // return omp_get_mapped_ptr(buffer, omp_get_default_device());
+    }
 
   }
 
