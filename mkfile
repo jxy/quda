@@ -10,7 +10,8 @@ TARG=${TARG:%=tests/%}
 # CXX=mpicxx
 CXX=clang++
 # OMPFLAGS=-fopenmp
-OMPFLAGS=-fopenmp -fopenmp-targets=nvptx64
+# OMPFLAGS=-fopenmp -fopenmp-targets=nvptx64 -fopenmp-cuda-mode -Xopenmp-target -march=sm_80
+OMPFLAGS=-fopenmp -fopenmp-targets=nvptx64 -fopenmp-target-new-runtime -Xopenmp-target -march=sm_80 -Rpass-missed=openmp-opt
 
 # CXXFLAGS=-O0 -g -std=gnu++17
 CXXFLAGS=-O2 -ffast-math
