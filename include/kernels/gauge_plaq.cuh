@@ -44,13 +44,17 @@ namespace quda {
 
     int dx[4] = {0, 0, 0, 0};
     Link U1 = arg.U(mu, linkIndexShift(x,dx,arg.E), parity);
+    QUDA_THREAD_MEM(U1)
     dx[mu]++;
     Link U2 = arg.U(nu, linkIndexShift(x,dx,arg.E), 1-parity);
+    QUDA_THREAD_MEM(U2)
     dx[mu]--;
     dx[nu]++;
     Link U3 = arg.U(mu, linkIndexShift(x,dx,arg.E), 1-parity);
+    QUDA_THREAD_MEM(U3)
     dx[nu]--;
     Link U4 = arg.U(nu, linkIndexShift(x,dx,arg.E), parity);
+    QUDA_THREAD_MEM(U4)
 
     return getTrace( U1 * U2 * conj(U3) * conj(U4) ).real();
   }
@@ -66,8 +70,10 @@ namespace quda {
     __device__ __host__ inline reduce_t operator()(reduce_t &value, int x_cb, int parity)
     {
       reduce_t plaq;
+      QUDA_THREAD_MEM(plaq)
 
       int x[4];
+      QUDA_THREAD_MEM(x)
       getCoords(x, x_cb, arg.X, parity);
 QUDA_UNROLL
       for (int dr=0; dr<4; ++dr) x[dr] += arg.border[dr]; // extended grid coordinates

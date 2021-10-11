@@ -65,21 +65,25 @@ namespace quda {
     // const int tz = arg.threads.z;
     // printf("Reduction2D: launch parameter: gd %d ld %d tx %d ty %d tz %d\n", gd, ld, tx, ty, tz);
     Arg *dparg = (Arg*)omp_target_alloc(sizeof(Arg), omp_get_default_device());
+    #pragma omp allocate(dparg) allocator(omp_cgroup_mem_alloc)
     // printf("dparg %p\n", dparg);
     omp_target_memcpy(dparg, (void *)(&arg), sizeof(Arg), 0, 0, omp_get_default_device(), omp_get_initial_device());
     #pragma omp target teams num_teams(gd) thread_limit(ld) is_device_ptr(dparg)
     {
       int cache[device::max_shared_memory_size()/sizeof(int)];
+      #pragma omp allocate(cache) allocator(omp_pteam_mem_alloc)
       shared_cache.addr = cache;
       // Reduction2D_impl<Transformer, Arg, grid_stride>(*dparg);
       const dim3
         blockDim=launch_param.block,
         gridDim=launch_param.grid,
         blockIdx(omp_get_team_num()%launch_param.grid.x, (omp_get_team_num()/launch_param.grid.x)%launch_param.grid.y, omp_get_team_num()/(launch_param.grid.x*launch_param.grid.y));
+      #pragma omp allocate(blockDim,gridDim,blockIdx) allocator(omp_pteam_mem_alloc)
 
       using reduce_t = typename Transformer<Arg>::reduce_t;
 #pragma omp declare reduction(OMPReduce_ : reduce_t : omp_out=Transformer<Arg>::reduce_omp(omp_out,omp_in)) initializer(omp_priv=Transformer<Arg>::init_omp())
       reduce_t value = dparg->init();
+      #pragma omp allocate(value) allocator(omp_pteam_mem_alloc)
       #pragma omp parallel num_threads(ld) reduction(OMPReduce_:value)
       {
         // if(omp_get_team_num()==0 && omp_get_thread_num()==0)
@@ -102,16 +106,15 @@ namespace quda {
         }
       }
       // perform final inter-block reduction and write out result
-      Transformer<Arg> t(*dparg);
+      // Transformer<Arg> t(*dparg);
       // reduce<Arg::block_size_x, Arg::block_size_y>(arg, t, value);
       // ../../reduce_helper.h:/reduce
       {
         const auto idx = 0;
         // In OpenMP, this runs in the main thread of each team, and `in` is already the block reduction value.
         bool isLastBlockDone;
+        // #pragma omp allocate(isLastBlockDone) allocator(omp_thread_mem_alloc)
         // if (threadIdx.x == 0 && threadIdx.y == 0)
-        #pragma omp parallel
-        #pragma omp master
         { // This is the main thread per team
           // if(blockIdx.x==0) printf("team %d: value: %g\n", omp_get_team_num(), *reinterpret_cast<double *>(&value));
           dparg->partial[idx * gridDim.x + blockIdx.x] = value;
@@ -120,6 +123,9 @@ namespace quda {
           // auto value = atomicInc(&arg.count[idx], gridDim.x);
           unsigned int cvalue = 0;
           unsigned int *c = &dparg->count[idx];
+          #pragma omp allocate(cvalue,c) allocator(omp_pteam_mem_alloc)
+          #pragma omp parallel
+          #pragma omp master
           #pragma omp atomic capture
           { cvalue = *c; *c = *c + 1; }
           // { cvalue = dparg->count[idx]; dparg->count[idx] = ((dparg->count[idx] >= gridDim.x) ? 0 : (dparg->count[idx]+1)); }
@@ -130,9 +136,11 @@ namespace quda {
         // finish the reduction if last block
         if (isLastBlockDone) {
           reduce_t sum = dparg->init();
+          #pragma omp allocate(sum) allocator(omp_pteam_mem_alloc)
           #pragma omp parallel num_threads(ld) reduction(OMPReduce_:sum)
           {
             dim3 threadIdx(omp_get_thread_num()%launch_param.block.x, (omp_get_thread_num()/launch_param.block.x)%launch_param.block.y, omp_get_thread_num()/(launch_param.block.x*launch_param.block.y));
+            Transformer<Arg> t(*dparg);
             auto i = threadIdx.y * Arg::block_size_x + threadIdx.x;
             while (i < gridDim.x) {
               sum = t(sum, const_cast<reduce_t &>(static_cast<volatile reduce_t *>(dparg->partial)[idx * gridDim.x + i]));
@@ -166,17 +174,21 @@ namespace quda {
     #pragma omp target teams num_teams(gd) thread_limit(ld)
     {
       int cache[device::max_shared_memory_size()/sizeof(int)];
+      #pragma omp allocate(cache) allocator(omp_pteam_mem_alloc)
       shared_cache.addr = cache;
       // Reduction2D_impl<Transformer, Arg, grid_stride>(device::get_arg<Arg>());
       Arg *dparg = &device::get_arg<Arg>();
+      #pragma omp allocate(dparg) allocator(omp_pteam_mem_alloc)
       const dim3
         blockDim=launch_param.block,
         gridDim=launch_param.grid,
         blockIdx(omp_get_team_num()%launch_param.grid.x, (omp_get_team_num()/launch_param.grid.x)%launch_param.grid.y, omp_get_team_num()/(launch_param.grid.x*launch_param.grid.y));
+      #pragma omp allocate(blockDim,gridDim,blockIdx) allocator(omp_pteam_mem_alloc)
 
       using reduce_t = typename Transformer<Arg>::reduce_t;
 #pragma omp declare reduction(OMPReduce_ : reduce_t : omp_out=Transformer<Arg>::reduce_omp(omp_out,omp_in)) initializer(omp_priv=Transformer<Arg>::init_omp())
       reduce_t value = dparg->init();
+      #pragma omp allocate(value) allocator(omp_pteam_mem_alloc)
       #pragma omp parallel num_threads(ld) reduction(OMPReduce_:value)
       {
         // if(omp_get_team_num()==0 && omp_get_thread_num()==0)
@@ -197,13 +209,14 @@ namespace quda {
         }
       }
       // perform final inter-block reduction and write out result
-      Transformer<Arg> t(*dparg);
+      // Transformer<Arg> t(*dparg);
       // reduce<Arg::block_size_x, Arg::block_size_y>(*dparg, t, value);
       // ../../reduce_helper.h:/reduce
       {
         const auto idx = 0;
         // In OpenMP, this runs in the main thread of each team, and `in` is already the block reduction value.
         bool isLastBlockDone;
+        #pragma omp allocate(isLastBlockDone) allocator(omp_pteam_mem_alloc)
         // if (threadIdx.x == 0 && threadIdx.y == 0)
         #pragma omp parallel
         #pragma omp master
@@ -224,6 +237,7 @@ namespace quda {
         // finish the reduction if last block
         if (isLastBlockDone) {
           reduce_t sum = dparg->init();
+          #pragma omp allocate(sum) allocator(omp_pteam_mem_alloc)
           #pragma omp parallel num_threads(ld) reduction(OMPReduce_:sum)
           {
             dim3 threadIdx(omp_get_thread_num()%launch_param.block.x, (omp_get_thread_num()/launch_param.block.x)%launch_param.block.y, omp_get_thread_num()/(launch_param.block.x*launch_param.block.y));
@@ -303,21 +317,25 @@ namespace quda {
     // const int tz = arg.threads.z;
     // printf("MultiReduction: launch parameter: gd %d ld %d tx %d ty %d tz %d\n", gd, ld, tx, ty, tz);
     Arg *dparg = (Arg*)omp_target_alloc(sizeof(Arg), omp_get_default_device());
+    #pragma omp allocate(dparg) allocator(omp_cgroup_mem_alloc)
     // printf("dparg %p\n", dparg);
     omp_target_memcpy(dparg, (void *)(&arg), sizeof(Arg), 0, 0, omp_get_default_device(), omp_get_initial_device());
     #pragma omp target teams num_teams(gd) thread_limit(ld) is_device_ptr(dparg)
     {
       int cache[device::max_shared_memory_size()/sizeof(int)];
+      #pragma omp allocate(cache) allocator(omp_pteam_mem_alloc)
       shared_cache.addr = cache;
       // MultiReduction_impl<Transformer, Arg, grid_stride>(*dparg);
       const dim3
         blockDim=launch_param.block,
         gridDim=launch_param.grid,
         blockIdx(omp_get_team_num()%launch_param.grid.x, (omp_get_team_num()/launch_param.grid.x)%launch_param.grid.y, omp_get_team_num()/(launch_param.grid.x*launch_param.grid.y));
+      #pragma omp allocate(blockDim,gridDim,blockIdx) allocator(omp_pteam_mem_alloc)
 
       using reduce_t = typename Transformer<Arg>::reduce_t;
 #pragma omp declare reduction(OMPReduce_ : reduce_t : omp_out=Transformer<Arg>::reduce_omp(omp_out,omp_in)) initializer(omp_priv=Transformer<Arg>::init_omp())
       reduce_t value = dparg->init();
+      #pragma omp allocate(value) allocator(omp_pteam_mem_alloc)
       #pragma omp parallel num_threads(ld) reduction(OMPReduce_:value)
       {
         // if(omp_get_team_num()==0 && omp_get_thread_num()==0)
@@ -341,14 +359,16 @@ namespace quda {
         }
       }
       // perform final inter-block reduction and write out result
-      Transformer<Arg> t(*dparg);
+      // Transformer<Arg> t(*dparg);
       auto j = blockIdx.y * blockDim.y;
       // reduce<Arg::block_size_x, Arg::block_size_y>(*dparg, t, value, j);
       // ../../reduce_helper.h:/reduce
       {
         const auto idx = j;
+        #pragma omp allocate(idx) allocator(omp_pteam_mem_alloc)
         // In OpenMP, this runs in the main thread of each team, and `in` is already the block reduction value.
         bool isLastBlockDone;
+        #pragma omp allocate(isLastBlockDone) allocator(omp_pteam_mem_alloc)
         // if (threadIdx.x == 0 && threadIdx.y == 0)
         #pragma omp parallel
         #pragma omp master
@@ -370,9 +390,11 @@ namespace quda {
         // finish the reduction if last block
         if (isLastBlockDone) {
           reduce_t sum = dparg->init();
+          #pragma omp allocate(sum) allocator(omp_pteam_mem_alloc)
           #pragma omp parallel num_threads(ld) reduction(OMPReduce_:sum)
           {
             dim3 threadIdx(omp_get_thread_num()%launch_param.block.x, (omp_get_thread_num()/launch_param.block.x)%launch_param.block.y, omp_get_thread_num()/(launch_param.block.x*launch_param.block.y));
+            Transformer<Arg> t(*dparg);
             auto i = threadIdx.y * Arg::block_size_x + threadIdx.x;
             while (i < gridDim.x) {
               sum = t(sum, const_cast<reduce_t &>(static_cast<volatile reduce_t *>(dparg->partial)[idx * gridDim.x + i]));
@@ -406,17 +428,21 @@ namespace quda {
     #pragma omp target teams num_teams(gd) thread_limit(ld)
     {
       int cache[device::max_shared_memory_size()/sizeof(int)];
+      #pragma omp allocate(cache) allocator(omp_pteam_mem_alloc)
       shared_cache.addr = cache;
       // MultiReduction_impl<Transformer, Arg, grid_stride>(device::get_arg<Arg>());
       Arg *dparg = &device::get_arg<Arg>();
+      #pragma omp allocate(dparg) allocator(omp_cgroup_mem_alloc)
       const dim3
         blockDim=launch_param.block,
         gridDim=launch_param.grid,
         blockIdx(omp_get_team_num()%launch_param.grid.x, (omp_get_team_num()/launch_param.grid.x)%launch_param.grid.y, omp_get_team_num()/(launch_param.grid.x*launch_param.grid.y));
+      #pragma omp allocate(blockDim,gridDim,blockIdx) allocator(omp_pteam_mem_alloc)
 
       using reduce_t = typename Transformer<Arg>::reduce_t;
 #pragma omp declare reduction(OMPReduce_ : reduce_t : omp_out=Transformer<Arg>::reduce_omp(omp_out,omp_in)) initializer(omp_priv=Transformer<Arg>::init_omp())
       reduce_t value = dparg->init();
+      #pragma omp allocate(value) allocator(omp_pteam_mem_alloc)
       #pragma omp parallel num_threads(ld) reduction(OMPReduce_:value)
       {
         // if(omp_get_team_num()==0 && omp_get_thread_num()==0)
@@ -440,7 +466,7 @@ namespace quda {
         }
       }
       // perform final inter-block reduction and write out result
-      Transformer<Arg> t(*dparg);
+      // Transformer<Arg> t(*dparg);
       auto j = blockIdx.y * blockDim.y;
       // reduce<Arg::block_size_x, Arg::block_size_y>(*dparg, t, value, j);
       // ../../reduce_helper.h:/reduce
@@ -448,6 +474,7 @@ namespace quda {
         const auto idx = j;
         // In OpenMP, this runs in the main thread of each team, and `in` is already the block reduction value.
         bool isLastBlockDone;
+        #pragma omp allocate(isLastBlockDone) allocator(omp_pteam_mem_alloc)
         // if (threadIdx.x == 0 && threadIdx.y == 0)
         #pragma omp parallel
         #pragma omp master
@@ -468,6 +495,7 @@ namespace quda {
         // finish the reduction if last block
         if (isLastBlockDone) {
           reduce_t sum = dparg->init();
+          #pragma omp allocate(sum) allocator(omp_pteam_mem_alloc)
           #pragma omp parallel num_threads(ld) reduction(OMPReduce_:sum)
           {
             dim3 threadIdx(omp_get_thread_num()%launch_param.block.x, (omp_get_thread_num()/launch_param.block.x)%launch_param.block.y, omp_get_thread_num()/(launch_param.block.x*launch_param.block.y));

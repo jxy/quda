@@ -93,12 +93,14 @@ QUDA_UNROLL
             ghostFaceIndex<1, Arg::nDim>(coord, arg.dim, d, arg.nFace) : idx;
 
           Link U = arg.U(d, gauge_idx, gauge_parity);
+          QUDA_THREAD_MEM(U)
           HalfVector in = arg.in.Ghost(d, 1, ghost_idx + coord.s * arg.dc.ghostFaceCB[d], their_spinor_parity);
 
           out += (U * in).reconstruct(d, proj_dir);
         } else if (doBulk<kernel_type>() && !ghost) {
 
           Link U = arg.U(d, gauge_idx, gauge_parity);
+          QUDA_THREAD_MEM(U)
           Vector in = arg.in(fwd_idx + coord.s * arg.dc.volume_4d_cb, their_spinor_parity);
 
           out += (U * in.project(d, proj_dir)).reconstruct(d, proj_dir);
@@ -119,12 +121,14 @@ QUDA_UNROLL
 
           const int gauge_ghost_idx = (Arg::nDim == 5 ? ghost_idx % arg.dc.ghostFaceCB[d] : ghost_idx);
           Link U = arg.U.Ghost(d, gauge_ghost_idx, 1 - gauge_parity);
+          QUDA_THREAD_MEM(U)
           HalfVector in = arg.in.Ghost(d, 0, ghost_idx + coord.s * arg.dc.ghostFaceCB[d], their_spinor_parity);
 
           out += (conj(U) * in).reconstruct(d, proj_dir);
         } else if (doBulk<kernel_type>() && !ghost) {
 
           Link U = arg.U(d, gauge_idx, 1 - gauge_parity);
+          QUDA_THREAD_MEM(U)
           Vector in = arg.in(back_idx + coord.s * arg.dc.volume_4d_cb, their_spinor_parity);
 
           out += (conj(U) * in.project(d, proj_dir)).reconstruct(d, proj_dir);
@@ -151,18 +155,22 @@ QUDA_UNROLL
       int thread_dim;                                        // which dimension is thread working on (fused kernel only)
 
       auto coord = getCoords<QUDA_4D_PC, mykernel_type>(arg, idx, 0, parity, thread_dim);
+      QUDA_THREAD_MEM(coord)
 
       const int my_spinor_parity = nParity == 2 ? parity : 0;
       Vector out;
+      QUDA_THREAD_MEM(out)
       applyWilson<nParity, dagger, mykernel_type>(out, arg, coord, parity, idx, thread_dim, active);
 
       int xs = coord.x_cb + coord.s * arg.dc.volume_4d_cb;
       if (xpay && mykernel_type == INTERIOR_KERNEL) {
 
         Vector x = arg.x(xs, my_spinor_parity);
+        QUDA_THREAD_MEM(x)
         out = x + arg.a * out;
       } else if (mykernel_type != INTERIOR_KERNEL && active) {
         Vector x = arg.out(xs, my_spinor_parity);
+        QUDA_THREAD_MEM(x)
         out = x + (xpay ? arg.a * out : out);
       }
 

@@ -29,6 +29,7 @@ namespace quda {
       const int tz = arg.threads.z;
       // printf("Kernel1D: launch parameter: gd %d ld %d tx %d ty %d tz %d\n", gd, ld, tx, ty, tz);
       Arg *dparg = (Arg*)omp_target_alloc(sizeof(Arg), omp_get_default_device());
+      #pragma omp allocate(dparg) allocator(omp_cgroup_mem_alloc)
       // printf("dparg %p\n", dparg);
       omp_target_memcpy(dparg, (void *)(&arg), sizeof(Arg), 0, 0, omp_get_default_device(), omp_get_initial_device());
       #pragma omp target teams num_teams(gd) thread_limit(ld) is_device_ptr(dparg)
@@ -99,6 +100,7 @@ namespace quda {
       const int tz = arg.threads.z;
       // printf("Kernel2D: launch parameter: gd %d ld %d tx %d ty %d tz %d\n", gd, ld, tx, ty, tz);
       Arg *dparg = (Arg*)omp_target_alloc(sizeof(Arg), omp_get_default_device());
+      #pragma omp allocate(dparg) allocator(omp_cgroup_mem_alloc)
       // printf("dparg %p\n", dparg);
       omp_target_memcpy(dparg, (void *)(&arg), sizeof(Arg), 0, 0, omp_get_default_device(), omp_get_initial_device());
       #pragma omp target teams num_teams(gd) thread_limit(ld) is_device_ptr(dparg)
@@ -171,6 +173,7 @@ namespace quda {
       const int tz = arg.threads.z;
       // printf("Kernel3D: launch parameter: gd %d ld %d tx %d ty %d tz %d\n", gd, ld, tx, ty, tz);
       Arg *dparg = (Arg*)omp_target_alloc(sizeof(Arg), omp_get_default_device());
+      #pragma omp allocate(dparg) allocator(omp_cgroup_mem_alloc)
       // printf("dparg %p\n", dparg);
       omp_target_memcpy(dparg, (void *)(&arg), sizeof(Arg), 0, 0, omp_get_default_device(), omp_get_initial_device());
       #pragma omp target teams num_teams(gd) thread_limit(ld) is_device_ptr(dparg)
@@ -224,6 +227,7 @@ namespace quda {
     const int tz = arg.threads.z;
     // printf("raw_kernel: launch parameter: gd %d ld %d tx %d ty %d tz %d\n", gd, ld, tx, ty, tz);
     Arg *dparg = (Arg*)omp_target_alloc(sizeof(Arg), omp_get_default_device());
+    #pragma omp allocate(dparg) allocator(omp_cgroup_mem_alloc)
     // printf("dparg %p\n", dparg);
     omp_target_memcpy(dparg, (void *)(&arg), sizeof(Arg), 0, 0, omp_get_default_device(), omp_get_initial_device());
     #pragma omp target teams num_teams(gd) thread_limit(ld) is_device_ptr(dparg)

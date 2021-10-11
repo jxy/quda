@@ -55,12 +55,15 @@ namespace quda {
     using Link = Matrix<complex<typename Arg::Float>, Arg::nColor>;
 
     Link a = arg.u(dir, linkIndex(x, arg.E), parity);
+    QUDA_THREAD_MEM(a)
 
     dx[dir]++;
     Link b = arg.u(dir, linkIndexShift(x, dx, arg.E), 1-parity);
+    QUDA_THREAD_MEM(b)
 
     dx[dir]++;
     Link c = arg.u(dir, linkIndexShift(x, dx, arg.E), parity);
+    QUDA_THREAD_MEM(c)
     dx[dir]-=2;
 
     arg.link(dir, idx, parity) = arg.coeff * a * b * c;
@@ -98,6 +101,7 @@ namespace quda {
       using Link = Matrix<complex<typename Arg::Float>, Arg::nColor>;
 
       Link a = arg.u(dir, linkIndex(x,arg.E), parity);
+      QUDA_THREAD_MEM(a)
       arg.link(dir, x_cb, parity) = arg.coeff*a;
     }
   };
@@ -176,15 +180,18 @@ namespace quda {
     {
       /* load matrix A*/
       Link a = arg.u(nu, linkIndex(x, arg.E), parity);
+      QUDA_THREAD_MEM(a)
 
       /* load matrix B*/
       dx[nu]++;
       Link b = arg.mulink(mu, linkIndexShift(x, dx, arg.E), 1-parity);
+      QUDA_THREAD_MEM(b)
       dx[nu]--;
 
       /* load matrix C*/
       dx[mu]++;
       Link c = arg.u(nu, linkIndexShift(x, dx, arg.E), 1-parity);
+      QUDA_THREAD_MEM(c)
       dx[mu]--;
 
       staple = a * b * conj(c);
@@ -201,13 +208,16 @@ namespace quda {
       /* load matrix A*/
       dx[nu]--;
       Link a = arg.u(nu, linkIndexShift(x, dx, arg.E), 1-parity);
+      QUDA_THREAD_MEM(a)
 
       /* load matrix B*/
       Link b = arg.mulink(mu, linkIndexShift(x, dx, arg.E), 1-parity);
+      QUDA_THREAD_MEM(b)
 
       /* load matrix C*/
       dx[mu]++;
       Link c = arg.u(nu, linkIndexShift(x, dx, arg.E), parity);
+      QUDA_THREAD_MEM(c)
       dx[mu]--;
       dx[nu]++;
 
@@ -231,11 +241,13 @@ namespace quda {
       }
 
       int x[4];
+      QUDA_THREAD_MEM(x)
       getCoords(x, x_cb, arg.X, (parity+arg.odd_bit)%2);
       for (int d=0; d<4; d++) x[d] += arg.border[d];
 
       using Link = Matrix<complex<typename Arg::Float>, Arg::nColor>;
       Link staple;
+      QUDA_THREAD_MEM(staple)
       switch (mu) {
       case 0:
         switch (arg.nu) {
@@ -271,6 +283,7 @@ namespace quda {
         // convert to inner coords
         int inner_x[] = {x[0]-arg.inner_border[0], x[1]-arg.inner_border[1], x[2]-arg.inner_border[2], x[3]-arg.inner_border[3]};
         Link fat = arg.fat(mu, linkIndex(inner_x, arg.inner_X), parity);
+        QUDA_THREAD_MEM(fat)
         fat += arg.coeff * staple;
         arg.fat(mu, linkIndex(inner_x, arg.inner_X), parity) = fat;
       }

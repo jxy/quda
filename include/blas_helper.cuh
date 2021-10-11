@@ -233,6 +233,7 @@ QUDA_UNROLL
 
         // if(x>=0 && x<=4) printf("Spinor::load x %d parity %d spinor %p spinor[0] %g\n", x, parity, spinor, spinor[0]);
         vector_type<real, len> v_;
+        QUDA_THREAD_MEM(v_)
 
         constexpr int M = len / N;
 QUDA_UNROLL
@@ -260,6 +261,7 @@ QUDA_UNROLL
       {
         constexpr int len = 2 * n; // real-valued length
         vector_type<real, len> v_;
+        QUDA_THREAD_MEM(v_)
 
         if (isFixed<store_t>::value) {
           real scale_inv = store_norm<isFixed<store_t>::value, real, n>(v, x, parity);

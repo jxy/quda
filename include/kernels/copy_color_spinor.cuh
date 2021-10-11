@@ -121,7 +121,9 @@ namespace quda {
     __device__ __host__ inline void operator()(int x_cb, int parity)
     {
       ColorSpinor<typename Arg::realIn, Arg::nColor, Arg::nSpin> in = arg.in(x_cb, (parity+arg.inParity)&1);
+      QUDA_THREAD_MEM(in)
       ColorSpinor<typename Arg::realOut, Arg::nColor, Arg::nSpin> out;
+      QUDA_THREAD_MEM(out)
       typename Arg::Basis basis;
       basis(out.data, in.data);
       arg.out(x_cb, (parity+arg.outParity)&1) = out;

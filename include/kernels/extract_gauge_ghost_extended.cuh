@@ -101,6 +101,7 @@ namespace quda {
 
     // load the ghost element from the bulk
     Matrix<complex<typename Arg::real>, Arg::nColor> u = arg.u(g, srcIdx, parity);
+    QUDA_THREAD_MEM(u)
 
     // need dir dependence in write
     // srcIdx is used here to determine boundary condition
@@ -122,6 +123,7 @@ namespace quda {
     int oddness = (parity+arg.localParity[dim])&1;
 
     Matrix<complex<typename Arg::real>, Arg::nColor> u;
+    QUDA_THREAD_MEM(u)
 
     // need dir dependence in read
     // dstIdx is used here to determine boundary condition

@@ -60,6 +60,7 @@ namespace quda {
 
       matrix result;
       const vector x = arg.inA(x_cb, 0);
+      QUDA_THREAD_MEM(result,x)
 
 QUDA_UNROLL
       for (int dim=0; dim<4; ++dim) {
@@ -68,8 +69,10 @@ QUDA_UNROLL
         const int first_nbr_idx = neighborIndex(x_cb, shift, arg.partitioned, arg.parity, arg.X);
         if (first_nbr_idx >= 0) {
           const vector y = arg.inB(first_nbr_idx, 0);
+          QUDA_THREAD_MEM(y)
           result = outerProduct(y, x);
           matrix tempA = arg.U(dim, x_cb, arg.parity);
+          QUDA_THREAD_MEM(tempA)
           result = tempA + result*arg.coeff[0];
 
           arg.U(dim, x_cb, arg.parity) = result;
@@ -79,8 +82,10 @@ QUDA_UNROLL
             const int third_nbr_idx = neighborIndex(x_cb, shift, arg.partitioned, arg.parity, arg.X);
             if (third_nbr_idx >= 0) {
               const vector z = arg.inB(third_nbr_idx, 0);
+              QUDA_THREAD_MEM(z)
               result = outerProduct(z, x);
               matrix tempB = arg.L(dim, x_cb, arg.parity);
+              QUDA_THREAD_MEM(tempB)
               result = tempB + result*arg.coeff[1];
               arg.L(dim, x_cb, arg.parity) = result;
             }
@@ -101,6 +106,7 @@ QUDA_UNROLL
       using vector = ColorSpinor<typename Arg::real, Arg::nColor, 1>;
 
       matrix result;
+      QUDA_THREAD_MEM(result)
 
       auto &out = (arg.displacement == 1) ? arg.U : arg.L;
       auto coeff = (arg.displacement == 1) ? arg.coeff[0] : arg.coeff[1];
@@ -112,6 +118,7 @@ QUDA_UNROLL
       matrix inmatrix = out(Arg::dim, bulk_cb_idx, arg.parity);
       const vector a = arg.inA(bulk_cb_idx, 0);
       const vector b = arg.inB.Ghost(Arg::dim, 1, x_cb, 0);
+      QUDA_THREAD_MEM(inmatrix,a,b)
 
       result = outerProduct(b, a);
       result = inmatrix + result*coeff;

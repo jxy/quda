@@ -1506,6 +1506,7 @@ QUDA_UNROLL
       {
         const int M = reconLen / N;
         real tmp[reconLen];
+        QUDA_THREAD_MEM(tmp)
 
 QUDA_UNROLL
         for (int i=0; i<M; i++){
@@ -1533,6 +1534,7 @@ QUDA_UNROLL
       {
         const int M = reconLen / N;
         real tmp[reconLen];
+        QUDA_THREAD_MEM(tmp)
         reconstruct.Pack(tmp, v);
 
 QUDA_UNROLL
@@ -1573,6 +1575,7 @@ QUDA_UNROLL
         } else {
           const int M = reconLen / N;
           real tmp[reconLen];
+          QUDA_THREAD_MEM(tmp)
 
 QUDA_UNROLL
           for (int i=0; i<M; i++) {
@@ -1605,6 +1608,7 @@ QUDA_UNROLL
         } else {
           const int M = reconLen / N;
           real tmp[reconLen];
+          QUDA_THREAD_MEM(tmp)
           reconstruct.Pack(tmp, v);
 
 QUDA_UNROLL
@@ -1662,6 +1666,7 @@ QUDA_UNROLL
       {
         const int M = reconLen / N;
         real tmp[reconLen];
+        QUDA_THREAD_MEM(tmp)
 
 QUDA_UNROLL
 	for (int i=0; i<M; i++) {
@@ -1687,6 +1692,7 @@ QUDA_UNROLL
       {
         const int M = reconLen / N;
         real tmp[reconLen];
+        QUDA_THREAD_MEM(tmp)
         reconstruct.Pack(tmp, v);
 
 QUDA_UNROLL

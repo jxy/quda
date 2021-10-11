@@ -82,6 +82,7 @@ namespace quda {
       int d = parity_d % arg.geometry;
       Matrix<complex<typename Arg::real_in_t>, Arg::nColor> in = arg.in(d, x, parity);
       Matrix<complex<typename Arg::real_out_t>, Arg::nColor> out = in;
+      QUDA_THREAD_MEM(out)
       arg.out(d, x, parity) = out;
     }
   };
@@ -120,6 +121,7 @@ namespace quda {
       if (x < arg.faceVolumeCB[d]) {
         Matrix<complex<typename Arg::real_in_t>, Arg::nColor> in = arg.in.Ghost(d + arg.in_offset, x, parity);
         Matrix<complex<typename Arg::real_out_t>, Arg::nColor> out = in;
+        QUDA_THREAD_MEM(out)
         arg.out.Ghost(d + arg.out_offset, x, parity) = out;
       }
     }

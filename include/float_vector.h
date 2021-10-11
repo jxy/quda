@@ -288,6 +288,7 @@ QUDA_UNROLL
   template <> __device__ __host__ inline vector_type<double2, 16> zero<vector_type<double2, 16>>()
   {
     vector_type<double2, 16> v;
+    QUDA_THREAD_MEM(v)
 QUDA_UNROLL
     for (int i = 0; i < 16; i++) v.data[i] = zero<double2>();
     return v;
@@ -298,6 +299,7 @@ QUDA_UNROLL
                                                               const vector_type<scalar, n> &b)
   {
     vector_type<scalar, n> c;
+    QUDA_THREAD_MEM(c)
 QUDA_UNROLL
     for (int i = 0; i < n; i++) c[i] = a[i] + b[i];
     return c;

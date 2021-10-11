@@ -40,6 +40,7 @@ namespace quda {
   template <typename real, typename Link> __device__ __host__ Link gauss_su3(RNGState &localState)
   {
     Link ret;
+    QUDA_THREAD_MEM(ret)
     real rand1[4], rand2[4], phi[4], radius[4], temp1[4], temp2[4];
 
     for (int i = 0; i < 4; ++i) {
@@ -88,6 +89,7 @@ namespace quda {
       if (arg.group && arg.sigma == 0.0) {
         // if sigma = 0 then we just set the output matrix to the identity and finish
         Link I;
+        QUDA_THREAD_MEM(I)
         setIdentity(&I);
         for (int mu = 0; mu < 4; mu++) arg.U(mu, linkIndex(x, arg.E), parity) = I;
       } else {
@@ -96,6 +98,7 @@ namespace quda {
 
           // generate Gaussian distributed su(n) fiueld
           Link u = gauss_su3<real, Link>(localState);
+          QUDA_THREAD_MEM(u)
           if (arg.group) {
             u = arg.sigma * u;
             expsu3<real>(u);

@@ -6,6 +6,11 @@
 #define QUDA_UNROLL
 #endif
 
+#ifndef QUDA_THREAD_MEM
+#define QUDA_THREAD_MEM_HELPER(x) _Pragma(#x)
+#define QUDA_THREAD_MEM(...) QUDA_THREAD_MEM_HELPER(omp allocate(__VA_ARGS__) allocator(omp_thread_mem_alloc))
+#endif
+
 // OMPTARGET SPECIFIC workarounds
 #define __host__
 #define __device__
@@ -105,6 +110,10 @@ extern LaunchParam launch_param;
 
 #ifndef QUDA_UNROLL
 #define QUDA_UNROLL _Pragma("unroll")
+#endif
+
+#ifndef QUDA_THREAD_MEM
+#define QUDA_THREAD_MEM(x)
 #endif
 
 #include <quda_define.h>

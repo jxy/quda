@@ -96,6 +96,7 @@ namespace quda
     using Element = typename Arg::Element;
 
     Element element = arg.in(in, parity);
+    QUDA_THREAD_MEM(element)
     arg.out(out, parity) = element;
   }
 
@@ -120,6 +121,7 @@ namespace quda
 QUDA_UNROLL
     for (int d = 0; d < 4; d++) {
       Element element = arg.in(d, in, parity);
+      QUDA_THREAD_MEM(element)
       arg.out(d, out, parity) = element;
     }
   }

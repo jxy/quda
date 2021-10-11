@@ -67,6 +67,7 @@ namespace quda {
       for (int d=0; d<arg.geometry; d++) {
         const Matrix<complex<typename Arg::real_in_t>, Arg::nColor> in = arg.in(d, xin, parity);
         Matrix<complex<typename Arg::real_out_t>, Arg::nColor> out = in;
+        QUDA_THREAD_MEM(out)
         arg.out(d, xout, parity) = out;
       }//dir
     }

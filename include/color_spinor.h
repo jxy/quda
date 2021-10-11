@@ -178,6 +178,7 @@ QUDA_UNROLL
     */
     __device__ __host__ inline ColorSpinor<Float,Nc,4> gamma(int dim) {
       ColorSpinor<Float,Nc,4> a;
+      QUDA_THREAD_MEM(a)
       const auto &t = *this;
 
       switch (dim) {
@@ -238,6 +239,7 @@ QUDA_UNROLL
     */
     __device__ __host__ inline ColorSpinor<Float,Nc,4> igamma(int dim) {
       ColorSpinor<Float,Nc,4> a;
+      QUDA_THREAD_MEM(a)
       const auto &t = *this;
 
       switch (dim) {
@@ -316,6 +318,7 @@ QUDA_UNROLL
     __device__ __host__ inline ColorSpinor<Float, Nc, 2> project(int dim, int sign) const
     {
       ColorSpinor<Float,Nc,2> proj;
+      QUDA_THREAD_MEM(proj)
       const auto &t = *this;
       switch (dim) {
       case 0: // x dimension
@@ -733,7 +736,9 @@ QUDA_UNROLL
     __device__ __host__ inline ColorSpinor<Float, Nc, 4> reconstruct(int dim, int sign) const
     {
       ColorSpinor<Float, Nc, 4> recon;
+      QUDA_THREAD_MEM(recon)
       const auto t = *this;
+      QUDA_THREAD_MEM(t)
 
       switch (dim) {
       case 0: // x dimension
@@ -1084,6 +1089,7 @@ QUDA_UNROLL
                                                                      const ColorSpinor<Float, Nc, 1> &b)
   {
     Matrix<complex<Float>, Nc> out;
+    QUDA_THREAD_MEM(out)
 
     // outer product over color
 QUDA_UNROLL
@@ -1111,6 +1117,7 @@ QUDA_UNROLL
     ColorSpinor<Float,Nc,Ns> operator+(const ColorSpinor<Float,Nc,Ns> &x, const ColorSpinor<Float,Nc,Ns> &y) {
 
     ColorSpinor<Float,Nc,Ns> z;
+    QUDA_THREAD_MEM(z)
 
 QUDA_UNROLL
     for (int i=0; i<Nc; i++) {
@@ -1133,6 +1140,7 @@ QUDA_UNROLL
     ColorSpinor<Float,Nc,Ns> operator-(const ColorSpinor<Float,Nc,Ns> &x, const ColorSpinor<Float,Nc,Ns> &y) {
 
     ColorSpinor<Float,Nc,Ns> z;
+    QUDA_THREAD_MEM(z)
 
 QUDA_UNROLL
     for (int i=0; i<Nc; i++) {
@@ -1155,6 +1163,7 @@ QUDA_UNROLL
     ColorSpinor<Float,Nc,Ns> operator*(const S &a, const ColorSpinor<Float,Nc,Ns> &x) {
 
     ColorSpinor<Float,Nc,Ns> y;
+    QUDA_THREAD_MEM(y)
 
 QUDA_UNROLL
     for (int i=0; i<Nc; i++) {

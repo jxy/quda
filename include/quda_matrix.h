@@ -432,6 +432,7 @@ QUDA_UNROLL
     __device__ __host__ inline Mat<T,N> operator+(const Mat<T,N> & a, const Mat<T,N> & b)
     {
       Mat<T,N> result;
+      QUDA_THREAD_MEM(result)
 QUDA_UNROLL
       for (int i = 0; i < a.size(); i++) result.data[i] = a.data[i] + b.data[i];
       return result;
@@ -474,6 +475,7 @@ QUDA_UNROLL
   template< template<typename,int> class Mat, class T, int N, class S>
     __device__ __host__ inline Mat<T,N> operator*(const S & scalar, const Mat<T,N> & a){
       Mat<T,N> result;
+      QUDA_THREAD_MEM(result)
 QUDA_UNROLL
       for (int i = 0; i < a.size(); ++i) result.data[i] = scalar * a.data[i];
       return result;
@@ -527,6 +529,7 @@ QUDA_UNROLL
     __device__ __host__ inline Matrix<complex<T>,N> operator*(const Matrix<complex<T>,N> &a, const Matrix<complex<T>,N> &b)
     {
       Matrix<complex<T>,N> result;
+      QUDA_THREAD_MEM(result)
 QUDA_UNROLL
       for (int i=0; i<N; i++) {
 QUDA_UNROLL
@@ -593,6 +596,7 @@ QUDA_UNROLL
     __device__ __host__ inline
     Matrix<T,N> conj(const Matrix<T,N> & other){
       Matrix<T,N> result;
+      QUDA_THREAD_MEM(result)
 QUDA_UNROLL
       for (int i=0; i<N; ++i){
 QUDA_UNROLL

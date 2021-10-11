@@ -74,6 +74,7 @@ namespace quda
         unsigned int i = tid - parity * arg.length_cb;
 
         vec x, y, z, w, v;
+        QUDA_THREAD_MEM(x,y,z,w,v)
         if (arg.r.read.X) arg.X.load(x, i, parity);
         if (arg.r.read.Y) arg.Y.load(y, i, parity);
         if (arg.r.read.Z) arg.Z.load(z, i, parity);

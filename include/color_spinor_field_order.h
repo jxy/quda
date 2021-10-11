@@ -989,6 +989,7 @@ QUDA_UNROLL
   __device__ __host__ inline void load(complex out[length / 2], int x, int parity = 0) const
   {
     real v[length];
+    QUDA_THREAD_MEM(v)
     norm_type nrm = isFixed<Float>::value ? vector_load<float>(norm, x + parity * norm_offset) : 0.0;
 
 QUDA_UNROLL
@@ -1007,6 +1008,7 @@ QUDA_UNROLL
   __device__ __host__ inline void save(const complex in[length / 2], int x, int parity = 0) const
   {
     real v[length];
+    QUDA_THREAD_MEM(v)
 
 QUDA_UNROLL
     for (int i = 0; i < length / 2; i++) {
@@ -1076,6 +1078,7 @@ QUDA_UNROLL
                                             int parity = 0) const
   {
     real v[length_ghost];
+    QUDA_THREAD_MEM(v)
 QUDA_UNROLL
     for (int i = 0; i < length_ghost / 2; i++) {
       v[2 * i + 0] = in[i].real();
@@ -1182,6 +1185,7 @@ QUDA_UNROLL
   {
     auto in = &field[(parity * volumeCB + x) * length];
     complex v_[length / 2];
+    QUDA_THREAD_MEM(v_)
     block_load<complex, length / 2>(v_, reinterpret_cast<const complex *>(in));
 
     for (int s=0; s<Ns; s++) {
@@ -1193,6 +1197,7 @@ QUDA_UNROLL
   {
     auto out = &field[(parity * volumeCB + x) * length];
     complex v_[length / 2];
+    QUDA_THREAD_MEM(v_)
     for (int s=0; s<Ns; s++) {
       for (int c = 0; c < Nc; c++) { v_[c * Ns + s] = v[s * Nc + c]; }
     }

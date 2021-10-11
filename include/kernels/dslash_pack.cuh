@@ -152,10 +152,12 @@ namespace quda
       int idx = indexFromFaceIndex<nDim, pc, dim, nFace, 0>(ghost_idx, parity, arg);
       constexpr int proj_dir = dagger ? +1 : -1;
       Vector f = arg.in_pack(idx + s * arg.dc.volume_4d_cb, spinor_parity);
+      QUDA_THREAD_MEM(f)
       if (twist == 1) {
         f = arg.twist_a * (f + arg.twist_b * f.igamma(4));
       } else if (twist == 2) {
         Vector f1 = arg.in_pack(idx + (1 - s) * arg.dc.volume_4d_cb, spinor_parity); // load other flavor
+        QUDA_THREAD_MEM(f1)
         if (s == 0)
           f = arg.twist_a * (f + arg.twist_b * f.igamma(4) + arg.twist_c * f1);
         else
@@ -171,10 +173,12 @@ namespace quda
       int idx = indexFromFaceIndex<nDim, pc, dim, nFace, 1>(ghost_idx, parity, arg);
       constexpr int proj_dir = dagger ? -1 : +1;
       Vector f = arg.in_pack(idx + s * arg.dc.volume_4d_cb, spinor_parity);
+      QUDA_THREAD_MEM(f)
       if (twist == 1) {
         f = arg.twist_a * (f + arg.twist_b * f.igamma(4));
       } else if (twist == 2) {
         Vector f1 = arg.in_pack(idx + (1 - s) * arg.dc.volume_4d_cb, spinor_parity); // load other flavor
+        QUDA_THREAD_MEM(f1)
         if (s == 0)
           f = arg.twist_a * (f + arg.twist_b * f.igamma(4) + arg.twist_c * f1);
         else
@@ -207,10 +211,12 @@ namespace quda
     if (face_num == 0) { // backwards
       int idx = indexFromFaceIndexStaggered<4, QUDA_4D_PC, dim, nFace, 0>(ghost_idx, parity, arg);
       Vector f = arg.in_pack(idx + s * arg.dc.volume_4d_cb, spinor_parity);
+      QUDA_THREAD_MEM(f)
       arg.in_pack.Ghost(dim, 0, ghost_idx + s * arg.dc.ghostFaceCB[dim], spinor_parity) = f;
     } else { // forwards
       int idx = indexFromFaceIndexStaggered<4, QUDA_4D_PC, dim, nFace, 1>(ghost_idx, parity, arg);
       Vector f = arg.in_pack(idx + s * arg.dc.volume_4d_cb, spinor_parity);
+      QUDA_THREAD_MEM(f)
       arg.in_pack.Ghost(dim, 1, ghost_idx + s * arg.dc.ghostFaceCB[dim], spinor_parity) = f;
     }
   }

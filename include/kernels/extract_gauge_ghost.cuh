@@ -101,9 +101,11 @@ namespace quda {
         if (Arg::extract) {
           // load the ghost element from the bulk
           Matrix<complex<real>, nColor> u = arg.u(dim+arg.offset, indexCB, parity);
+          QUDA_THREAD_MEM(u)
           arg.u.Ghost(dim, X>>1, (parity+arg.localParity[dim])&1) = u;
         } else { // injection
           Matrix <complex<real>, nColor> u = arg.u.Ghost(dim, X>>1, (parity+arg.localParity[dim])&1);
+          QUDA_THREAD_MEM(u)
           arg.u(dim+arg.offset, indexCB, parity) = u; // save the ghost element to the bulk
         }
       } // oddness == parity
