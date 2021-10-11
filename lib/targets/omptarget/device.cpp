@@ -80,6 +80,10 @@ static int cudaGetDeviceProperties(cudaDeviceProp*p,int dev)
   #pragma omp target teams map(tofrom:m)
   if(omp_get_team_num()==0)
     m = omp_get_max_threads();
+  if(m<=256){
+    printfQuda("omp_get_max_threads() returns %d; assuming 1024\n", m);
+    m = 1024;
+  }
   p->maxThreadsPerMultiProcessor = m;
   p->maxThreadsPerBlock = m;
   p->maxThreadsDim[0] = m;
@@ -87,7 +91,12 @@ static int cudaGetDeviceProperties(cudaDeviceProp*p,int dev)
   p->maxThreadsDim[2] = m;
   #pragma omp target map(tofrom:m)
   m = omp_get_num_procs();
-  p->multiProcessorCount = m/8;
+  if(m<=100){
+    printfQuda("omp_get_num_procs() returns %d; assuming multiProcessorCount 108\n", m);
+    p->multiProcessorCount = 108;
+  }else{
+    p->multiProcessorCount = m/8;
+  }
   return 0;
 }
 
