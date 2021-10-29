@@ -124,6 +124,13 @@ LIBOFILES=$LIBOFILES\
 	lib/dslash_coarse.o\
 	lib/dslash_coarse_dagger.o\
 	lib/dslash_domain_wall_4d.o\
+	lib/dslash_domain_wall_4d_m5inv.o\
+	lib/dslash_domain_wall_4d_m5inv_m5inv.o\
+	lib/dslash_domain_wall_4d_m5inv_m5pre.o\
+	lib/dslash_domain_wall_4d_m5mob.o\
+	lib/dslash_domain_wall_4d_m5pre.o\
+	lib/dslash_domain_wall_4d_m5pre_m5inv.o\
+	lib/dslash_domain_wall_4d_m5pre_m5mob.o\
 	lib/dslash_domain_wall_5d.o\
 	lib/dslash_gamma_helper.o\
 	lib/dslash_improved_staggered.o\
