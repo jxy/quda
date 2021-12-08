@@ -1,0 +1,2 @@
+#!/bin/sh
+awk 'NR==3||/GPU/{s=sprintf("%-14s",$1);for(i=4;i<=14;++i)s=s sprintf("%7s",$i);s=s sprintf("  %-14s",$15);v=$2 "    " $3;for(i=1;i<=15;++i)$i="";sub("^[# ]+","");s=s sprintf("%8s %s %8s %s",$1,$2,$3,$4);sub("comment","");sub("^.*tuning"," tuning");print s $0 " " v}' "$1"
