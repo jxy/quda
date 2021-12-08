@@ -194,6 +194,7 @@ LIBOFILES=$LIBOFILES\
 	lib/laplace.o\
 	lib/lattice_field.o\
 	lib/llfat_quda.o\
+	lib/max_clover.o\
 	lib/max_gauge.o\
 	lib/milc_interface.o\
 	lib/momentum.o\
