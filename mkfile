@@ -14,9 +14,9 @@ OMPFLAGS=-fiopenmp -fopenmp-targets=spir64_gen -fopenmp-version=51
 
 # CXXFLAGS=-O0 -g -std=gnu++17
 CXXFLAGS=-O3
-CXXFLAGS=$CXXFLAGS -std=gnu++17 -Wno-format-security -Wno-unused-result -Wno-attributes
+CXXFLAGS=$CXXFLAGS -std=gnu++17 -Wno-format-security -Wno-unused-result -Wno-attributes -Wno-tautological-constant-compare
 CXXFLAGS=$CXXFLAGS -fPIC
-CXXFLAGS=$CXXFLAGS -Iinclude/targets/omptarget -Iinclude/targets/generic -Iinclude -Itests/utils -Iinclude/externals -Ilib -Itests/host_reference -I../eigen-3.3.9 -Itests/googletest/include -Itests/googletest
+CXXFLAGS=$CXXFLAGS -Iinclude/targets/omptarget -Iinclude/targets/generic -Iinclude -Itests/utils -Iinclude/externals -Ilib -Itests/host_reference -I../eigen-3.4.0 -Itests/googletest/include -Itests/googletest
 CXXFLAGS=$CXXFLAGS -DQUDA_BACKEND_OMPTARGET
 CXXFLAGS=$CXXFLAGS -DQUDA_MAX_MULTI_BLAS_N=4 -DQUDA_HASH="$HASH"
 
