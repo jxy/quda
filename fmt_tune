@@ -8,7 +8,7 @@ NR==3 {
 	gsub("\\.w","W");
 	gsub("_bytes","");
 }
-NR==3||/GPU/{
+NR==3||(NR>3 && $3!~/CPU/){
 	# volume
 	s=sprintf("%-14s",$1);
 	# block.x block.y block.z grid.x  grid.y  grid.z  shared_bytes    aux.x   aux.y   aux.z   aux.w
