@@ -1,2 +1,30 @@
 #!/bin/sh
-awk 'NR==3||/GPU/{s=sprintf("%-14s",$1);for(i=4;i<=14;++i)s=s sprintf("%7s",$i);s=s sprintf("  %-14s",$15);v=$2 "    " $3;for(i=1;i<=15;++i)$i="";sub("^[# ]+","");s=s sprintf("%8s %s %8s %s",$1,$2,$3,$4);sub("comment","");sub("^.*tuning"," tuning");print s $0 " " v}' "$1"
+awk '
+NR==3 {
+	# shorten the labels
+	gsub("\\.x","X");
+	gsub("\\.y","Y");
+	gsub("\\.z","Z");
+	gsub("\\.w","W");
+	gsub("_bytes","");
+}
+NR==3||/GPU/{
+	# volume
+	s=sprintf("%-14s",$1);
+	# block.x block.y block.z grid.x  grid.y  grid.z  shared_bytes    aux.x   aux.y   aux.z   aux.w
+	for(i=4;i<=14;++i) s=s sprintf("%7s",$i);
+	# time ... Gflop/s, ... GB/s
+	s=s sprintf("  %-11s %7s %s %7s %s",$15,$17,$18,$19,$20);
+	if(NR>3){
+		# (mangled _Z)name aux
+		v="_Z" $2 "    " $3;
+		# cut off until
+		sub("^.* tuning took *","");
+		# tuning time
+		s=s sprintf("%12s", $1);
+		# the rest of comment is $0
+		$1="";
+		s=s $0" "v;
+	}
+	print s;
+}' "$1" | c++filt
