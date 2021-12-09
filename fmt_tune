@@ -16,8 +16,8 @@ NR==3||(NR>3 && $3!~/CPU/){
 	# time ... Gflop/s, ... GB/s
 	s=s sprintf("  %-11s %7s %s %7s %s",$15,$17,$18,$19,$20);
 	if(NR>3){
-		# (mangled _Z)name aux
-		v="_Z" $2 "    " $3;
+		# mangled & _Z name aux
+		v=$2 " " $3 " \"_Z" $2"\"";
 		# cut off until
 		sub("^.* tuning took *","");
 		# tuning time
