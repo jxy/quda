@@ -99,9 +99,7 @@ LIBOFILES=$LIBOFILES\
 	lib/copy_gauge_quarter.o\
 	lib/copy_gauge_single.o\
 	lib/covDev.o\
-	lib/cpu_color_spinor_field.o\
 	lib/cpu_gauge_field.o\
-	lib/cuda_color_spinor_field.o\
 	lib/cuda_gauge_field.o\
 	lib/deflation.o\
 	lib/dirac.o\
