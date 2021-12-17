@@ -1,0 +1,78 @@
+#!/bin/sh
+# ./build [fast|stag|mg|most]
+
+set -e -x -o pipefail
+
+if [ $# -ne 1 ];then
+	conf=fast
+else
+	conf=$1
+	if ! [ -s conf.$conf.mk ];then
+		echo "Config $conf not recognized." >&2
+		exit 1
+	fi
+fi
+
+C="$(pwd)"
+
+ev=3.4.0
+if ! [ -d ../eigen-$ev ];then
+	cd ..
+	curl -L https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar xj
+	cd "$C"
+fi
+
+if ! command -v mk;then
+	if ! [ -d ../p9p ];then
+		git clone https://github.com/jxy/plan9port ../p9p
+		cd ../p9p
+		ed INSTALL <<'EE'
+/^PATH=/d
+i
+PATH=$PATH:$PLAN9/bin export PATH
+.
+w
+q
+EE
+		ed src/cmd/mkfile <<'EE'
+/^BUGGERED/a
+BUGGERED=$BUGGERED'|devdraw|fontsrv|rio'
+.
+w
+q
+EE
+		NPROC=96 ./INSTALL
+		cd "$C"
+	fi
+	PLAN9="$C/../p9p"
+	export PLAN9
+	PATH=$PATH:$PLAN9/bin
+	export PATH
+fi
+
+NPROC=96 mk
+
+wait
+
+EnableWalkerPartition=0
+export EnableWalkerPartition
+ZE_AFFINITY_MASK=0.0
+export ZE_AFFINITY_MASK
+
+QUDA_ENABLE_TUNING=0
+export QUDA_ENABLE_TUNING
+QUDA_RESOURCE_PATH=.
+export QUDA_RESOURCE_PATH
+QUDA_ENABLE_P2P=0
+export QUDA_ENABLE_P2P
+
+t(){
+	if ! ./tests/blas_test '--gtest_filter=QUDA/BlasTest.verify/norm2_double_double' --verbosity debug >log.blas_test.norm2_double_double 2>&1 </dev/null;then
+		echo '**** FAILED ****' >&2
+	fi
+	if ! ./tests/dslash_ctest '--gtest_filter=*.verify/double_r18_*' --verbosity debug >log.dslash_ctest.double_r18 2>&1 </dev/null;then
+		echo '**** FAILED ****' >&2
+	fi
+}
+
+t
