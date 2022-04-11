@@ -38,7 +38,6 @@ EXEOFILES=${EXE:%=%.o}
 
 LIBOFILES=$LIBOFILES\
 	lib/block_orthogonalize.o\
-	lib/blas_magma.o\
 	lib/blas_quda.o\
 	lib/checksum.o\
 	lib/clover_deriv_quda.o\
@@ -102,6 +101,7 @@ LIBOFILES=$LIBOFILES\
 	lib/cpu_gauge_field.o\
 	lib/cuda_gauge_field.o\
 	lib/deflation.o\
+	lib/device_vector.o\
 	lib/dirac.o\
 	lib/dirac_clover.o\
 	lib/dirac_clover_hasenbusch_twist.o\
@@ -132,7 +132,8 @@ LIBOFILES=$LIBOFILES\
 	lib/dslash_domain_wall_5d.o\
 	lib/dslash_gamma_helper.o\
 	lib/dslash_improved_staggered.o\
-	lib/dslash_mdw_fused.o\
+	lib/dslash_ndeg_twisted_clover.o\
+	lib/dslash_ndeg_twisted_clover_preconditioned.o\
 	lib/dslash_ndeg_twisted_mass.o\
 	lib/dslash_ndeg_twisted_mass_preconditioned.o\
 	lib/dslash_pack2.o\
@@ -192,6 +193,9 @@ LIBOFILES=$LIBOFILES\
 	lib/laplace.o\
 	lib/lattice_field.o\
 	lib/llfat_quda.o\
+	lib/madwf_ml.o\
+	lib/madwf_tensor.o\
+	lib/madwf_transfer.o\
 	lib/max_clover.o\
 	lib/max_gauge.o\
 	lib/milc_interface.o\
@@ -214,6 +218,7 @@ LIBOFILES=$LIBOFILES\
 	lib/staggered_coarse_op.o\
 	lib/staggered_kd_apply_xinv.o\
 	lib/staggered_kd_build_xinv.o\
+	lib/staggered_kd_reorder_xinv.o\
 	lib/staggered_oprod.o\
 	lib/staggered_prolong_restrict.o\
 	lib/timer.o\
