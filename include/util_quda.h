@@ -7,6 +7,14 @@
 #include <tune_key.h>
 #include <malloc_quda.h>
 
+#ifndef QUDA_MUSTTAIL
+#ifdef __clang__
+#define QUDA_MUSTTAIL __attribute__((musttail))
+#else
+#define QUDA_MUSTTAIL
+#endif
+#endif
+
 namespace quda
 {
   // strip path from __FILE__
@@ -14,7 +22,26 @@ namespace quda
   constexpr bool str_slant(const char *str) { return *str == '/' ? true : (*str ? str_slant(str + 1) : false); }
   constexpr const char *r_slant(const char *str) { return *str == '/' ? (str + 1) : r_slant(str - 1); }
   constexpr const char *file_name(const char *str) { return str_slant(str) ? r_slant(str_end(str)) : str; }
+
+  template<int A, int B, int D=1, typename F>
+  __attribute__((always_inline)) __host__ __device__ inline void static_for(F&&f)
+  {
+    if constexpr (A<B){
+#if __cplusplus < 202002L
+      f(std::integral_constant<int,A>());
+#else
+      f.template operator()<A>();
+#endif
+      QUDA_MUSTTAIL return static_for<A+D,B,D>(std::forward<F>(f));
+    }
+  }
 } // namespace quda
+
+#if __cplusplus < 202002L
+#define static_for_var(i) [&](auto i)
+#else
+#define static_for_var(i) [&]<int i>
+#endif
 
 /**
    @brief Query whether autotuning is enabled or not.  Default is enabled but can be overridden by setting QUDA_ENABLE_TUNING=0.
