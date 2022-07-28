@@ -21,6 +21,10 @@ namespace quda {
   concept has_reduce_t = requires {
     typename T::reduce_t;
   };
+  template <typename T>
+  concept is_GaugeFixOvr = requires (T a) {
+    a.relax_boost;
+  };
 
   template <typename Arg>
   inline bool acceptThreads(const TuneParam &tp, const Arg &arg)
@@ -39,7 +43,7 @@ namespace quda {
     }
     if(!divisible){
       // we need to specialize it for different Arg
-      if constexpr(has_reduce_t<Arg>){
+      if constexpr(has_reduce_t<Arg> || is_GaugeFixOvr<Arg>){
         if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
           warningQuda("rejecting threads setup with a non-divisible block size\nfor arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
         return false;
