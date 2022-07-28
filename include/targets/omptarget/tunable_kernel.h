@@ -17,21 +17,50 @@ namespace quda {
     }
   }
 
+  template <typename T>
+  concept has_reduce_t = requires {
+    typename T::reduce_t;
+  };
+
   template <typename Arg>
   inline bool acceptThreads(const TuneParam &tp, const Arg &arg)
   {
-    bool r = tp.block.x*tp.block.y*tp.block.z<=device::max_block_size() &&
-       (arg.threads.x<tp.block.x ||    // trivial cases where arg.threads.x == 1 or few
-        arg.threads.y<tp.block.y ||
-        arg.threads.z<tp.block.z ||
+    bool fit = tp.block.x*tp.block.y*tp.block.z<=device::max_block_size();
+    bool divisible =
         (arg.threads.x%tp.block.x==0 &&
          arg.threads.y%tp.block.y==0 &&
-         arg.threads.z%tp.block.z==0));
+         arg.threads.z%tp.block.z==0);
     if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
       printfQuda("Checking threads setup for arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
-    if(!r && getVerbosity() >= QUDA_VERBOSE)
-      warningQuda("WARNING: rejecting threads setup arg %d %d %d tp grid %d %d %d block %d %d %d",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
-    return r;
+    if(!fit){
+      if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
+        warningQuda("rejecting threads setup with a large block size\nfor arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
+      return fit;
+    }
+    if(!divisible){
+      // we need to specialize it for different Arg
+      if constexpr(has_reduce_t<Arg>){
+        if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
+          warningQuda("rejecting threads setup with a non-divisible block size\nfor arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
+        return false;
+      } else {
+        if(getVerbosity() >= QUDA_DEBUG_VERBOSE){
+          bool cont = true;
+          std::string reply;
+          ompwip("arg threads not divisible by tp block, yes to stop?");
+          std::getline(std::cin, reply);
+          if(reply[0] == 'y' || reply[0] == 'Y'){
+            cont = false;
+          }
+          return cont;
+        } else {
+          if(getVerbosity() >= QUDA_VERBOSE)
+            ompwip("accepting threads setup with a non-divisible block size\nfor arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
+          return true;
+        }
+      }
+    }
+    return true;
   }
 
   class TunableKernel : public Tunable
