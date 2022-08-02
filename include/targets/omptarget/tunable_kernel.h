@@ -5,64 +5,59 @@
 #include <target_device.h>
 #include <kernel_helper.h>
 #include <kernel.h>
+#include <quda_omptarget_api.h>
 
 namespace quda {
 
-  namespace target {
-    namespace omptarget {
-      // defined in ../../../lib/targets/omptarget/quda_api.cpp:/qudaSetupLaunchParameter
-      int qudaSetupLaunchParameter(const TuneParam &);
-      void set_runtime_error(int error, const char *api_func, const char *func, const char *file,
-                             const char *line, bool allow_error = false);
-    }
-  }
-
-  template <typename T>
-  concept has_reduce_t = requires {
-    typename T::reduce_t;
-  };
-  template <typename T>
-  concept is_GaugeFixOvr = requires (T a) {
-    a.relax_boost;
+  template <typename Arg>
+  concept announce_threads_sync = requires {
+    Arg::requires_threads_sync;
   };
 
   template <typename Arg>
   inline bool acceptThreads(const TuneParam &tp, const Arg &arg)
   {
     bool fit = tp.block.x*tp.block.y*tp.block.z<=device::max_block_size();
-    bool divisible =
-        (arg.threads.x%tp.block.x==0 &&
-         arg.threads.y%tp.block.y==0 &&
-         arg.threads.z%tp.block.z==0);
-    if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
-      printfQuda("Checking threads setup for arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
-    if(!fit){
-      if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
-        warningQuda("rejecting threads setup with a large block size\nfor arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
-      return fit;
+    bool xrem = arg.threads.x % (tp.block.x * tp.grid.x) > 0;
+    bool yrem = arg.threads.y % (tp.block.y * tp.grid.y) > 0;
+    bool zrem = arg.threads.z % (tp.block.z * tp.grid.z) > 0;
+    if (!fit) {
+      if (getVerbosity() >= QUDA_DEBUG_VERBOSE)
+        warningQuda("rejecting threads setup with a large block size with arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
+      return false;
     }
-    if(!divisible){
-      // we need to specialize it for different Arg
-      if constexpr(has_reduce_t<Arg> || is_GaugeFixOvr<Arg>){
-        if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
-          warningQuda("rejecting threads setup with a non-divisible block size\nfor arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
-        return false;
-      } else {
-        if(getVerbosity() >= QUDA_DEBUG_VERBOSE){
+    if (xrem || yrem || zrem) {
+      if constexpr(announce_threads_sync<Arg>){
+        if (((Arg::requires_threads_sync & ThreadsSyncX) && xrem) ||
+            ((Arg::requires_threads_sync & ThreadsSyncY) && yrem) ||
+            ((Arg::requires_threads_sync & ThreadsSyncZ) && zrem)) {
+          if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
+            warningQuda("rejecting threads setup with a non-divisible block size with arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
+          return false;
+        } else {
+          if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
+            warningQuda("accepting threads setup with a non-divisible block size with arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
+          return true;
+        }
+      } else {  // ! announce_threads_sync<Arg>
+        if (getVerbosity() >= QUDA_DEBUG_VERBOSE) {
           bool cont = true;
           std::string reply;
-          ompwip("arg threads not divisible by tp block, yes to stop?");
+            ompwip("threads setup with a non-divisible block size with arg %d %d %d tp grid %d %d %d block %d %d %d, yes to stop?",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
           std::getline(std::cin, reply);
-          if(reply[0] == 'y' || reply[0] == 'Y'){
+          if (reply[0] == 'y' || reply[0] == 'Y') {
             cont = false;
           }
           return cont;
         } else {
-          if(getVerbosity() >= QUDA_VERBOSE)
-            ompwip("accepting threads setup with a non-divisible block size\nfor arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
+          if (getVerbosity() >= QUDA_VERBOSE)
+            ompwip("accepting threads setup with a non-divisible block size with arg %d %d %d tp grid %d %d %d block %d %d %d",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
           return true;
         }
       }
+    } else {
+      if(getVerbosity() >= QUDA_DEBUG_VERBOSE)
+        warningQuda("threads setup with arg %d %d %d tp grid %d %d %d block %d %d %d\n",arg.threads.x,arg.threads.y,arg.threads.z,tp.grid.x,tp.grid.y,tp.grid.z,tp.block.x,tp.block.y,tp.block.z);
     }
     return true;
   }
@@ -79,6 +74,7 @@ namespace quda {
     template <template <typename> class Functor, bool grid_stride, typename Arg>
     qudaError_t launch_device(const kernel_t &kernel, const TuneParam &tp, const qudaStream_t &stream, const Arg &arg)
     {
+      launch_error = QUDA_SUCCESS;
       if (acceptThreads(tp, arg) && 0==target::omptarget::qudaSetupLaunchParameter(tp)) {
         if constexpr (device::use_kernel_arg<Arg>()) {
           reinterpret_cast<void(*)(Arg)>(const_cast<void*>(kernel.func))(arg);
@@ -88,11 +84,11 @@ namespace quda {
           memcpy(argp, &arg, sizeof(Arg));
           reinterpret_cast<void(*)(Arg*)>(const_cast<void*>(kernel.func))(argp);
         }
-        launch_error = QUDA_SUCCESS;
+        launch_error = qudaGetLastError();
       } else {
-        target::omptarget::set_runtime_error(QUDA_ERROR, __func__, __func__, __FILE__, __STRINGIFY__(__LINE__), activeTuning());
         launch_error = QUDA_ERROR;
       }
+      target::omptarget::set_runtime_error(launch_error, __func__, __func__, __FILE__, __STRINGIFY__(__LINE__), activeTuning());
       return launch_error;
     }
 
